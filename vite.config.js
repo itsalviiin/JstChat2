@@ -8,7 +8,8 @@ const newLocal = '/'
 // https://vite.dev/config/
 export default defineConfig({
   // publicPath: newLocal,
-  base: process.env.NODE_ENV === 'production' ? '/JstChat2/' : '/',
+  // base: process.env.NODE_ENV === 'production' ? '/JstChat2/' : '/',
+  base: '/JstChat2/',
   transpileDependencies: true,
   plugins: [vue(), vueDevTools()],
   resolve: {
