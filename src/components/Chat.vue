@@ -359,10 +359,11 @@ export default {
   position: absolute;
   bottom: 0;
   left: 0;
+  width: 100%;
   font-size: v-bind('fontSize');
   overflow: hidden;
   overflow-wrap: break-word;
-  padding-left: 4px;
+  /* padding-left: 4px; */
 }
 
 @keyframes fadeInUp {
