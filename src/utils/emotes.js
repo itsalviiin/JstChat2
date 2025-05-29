@@ -57,14 +57,14 @@ export default {
     let allEmotes = [...new Set([
       ...Object.keys(emotes.twitch).map(emote => emote.replace('<', '&lt;')),
       ...Object.keys(emotes.ext),
-      ...(emotes.personal !== undefined && data.hidePersonalEmotes == 'true' ? emotes.personal.map(obj => obj.Name) : [])])]
+      ...(emotes.personal !== undefined && data.hidePersonalEmotes == 'false' ? emotes.personal.map(obj => obj.Name) : [])])]
 
     let scale = data.scale
     let i = 0
     while (i < words.length) {
       /** If current word is an emote,
        * otherwise skip to next word
-       * */
+       */
       if (allEmotes.includes(words[i]) || Common.checkEmoji(words[i])) {
         /** Check if next word is a zero width emote,
          * otherwise make it it's own emote container

@@ -37,6 +37,8 @@ export default class API {
     this.emotes = Object.assign(this.emotes, await this.FFZ.getFfzGlobalEmotes(this.twitch.userID))
     this.emotes = Object.assign(this.emotes, await this.SevenTV.get7tvEmoteSetObj(SevenTVGlobalEmoteSetID, hideUnlistedEmotes, hidePrivateEmotes))
 
+    this.emotes = Object.assign(this.emotes, await this.BTTV.getBttvEmotes(this.twitch.userID))
+
     em = await this.FFZ.getFfzEmotes(this.twitch.channel)
     if (em[1] != undefined) {
       this.twitch.badges["moderator"] = { '1': em[1] }
@@ -45,8 +47,6 @@ export default class API {
       this.twitch.badges["vip"] = { '1': em[2] }
     }
     this.emotes = Object.assign(this.emotes, em[0])
-
-    this.emotes = Object.assign(this.emotes, await this.BTTV.getBttvEmotes(this.twitch.userID))
 
     try {
       let s = await this.SevenTV.get7tvEmotes(this.twitch.userID, hideUnlistedEmotes, hidePrivateEmotes)
