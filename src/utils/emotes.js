@@ -47,9 +47,23 @@ function getEmoteData(name, emotes) {
   return undefined
 }
 
+function addSpaceBetweenEmoji(html) {
+  /** Add spaces between emojis so that it looks
+   * cleaner, consistent, and works with zero width emotes */
+  const segmenter = new Intl.Segmenter('en', { granularity: 'grapheme' });
+  const graphemes = Array.from(segmenter.segment(html), s => s.segment);
+
+  return graphemes
+    .map(g => /\p{Extended_Pictographic}/u.test(g) ? ` ${g} ` : g)
+    .join('')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+}
+
 export default {
   /** Parse 7tv, bttv, and ffz emotes */
   ParseEmotes(html, data) {
+    html = addSpaceBetweenEmoji(html)
     let res = ' ' + html + ' '
     let words = html.split(' ')
 
@@ -149,7 +163,7 @@ export default {
             })
             res = res.replace(
               ` ${name} `,
-              ` ${emotesHTML.replace(/\$/g, "$$$$").replace(`<img class="emoji"`, ` <img class="emoji"`).replace(`.png"/>`, `.png"/> `)} `,
+              ` ${emotesHTML.replace(/\$/g, "$$$$")} `,
             )
           } else {
             emotesHTML = `<img class="emote" src="${EmotesBaseUrl[em.Type + (em.animated ? 'animated' : '')].replace('{0}', em.ID)}"${scale != 0 ? ` style="max-width: ${getNewWidth(64, 192, scale)}px; width: ${getNewWidth(em.height, em.width, scale)}px; height: ${em.height + scale}px;"` : ``} ZeroWidth="false"> `
