@@ -71,7 +71,7 @@ export default {
     let allEmotes = [...new Set([
       ...Object.keys(emotes.twitch).map(emote => emote.replace('<', '&lt;')),
       ...Object.keys(emotes.ext),
-      ...(emotes.personal !== undefined && data.hidePersonalEmotes == 'false' ? emotes.personal.map(obj => obj.Name) : [])])]
+      ...(emotes.personal !== undefined ? emotes.personal.map(obj => obj.Name) : [])])]
 
     let scale = data.scale
     let i = 0

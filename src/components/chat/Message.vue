@@ -180,10 +180,9 @@ export default {
         emotes: {
           twitch: TwitchEmotes,
           ext: api.emotes,
-          personal: api.personalEmotes[payload.source.nick]
+          personal: pageConfig.hidePersonalEmotes == 'false' ? api.personalEmotes[payload.source.nick] : undefined,
         },
         scale: pageConfig.emoteSizeI,
-        hidePersonalEmotes: pageConfig.hidePersonalEmotes,
       }"
       v-bits="Bits"
       >
