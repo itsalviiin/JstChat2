@@ -54,7 +54,7 @@ function addSpaceBetweenEmoji(html) {
   const graphemes = Array.from(segmenter.segment(html), s => s.segment);
 
   return graphemes
-    .map(g => /\p{Extended_Pictographic}/u.test(g) ? ` ${g} ` : g)
+    .map(g => /\p{Extended_Pictographic}/u.test(g) || /[\uD83C][\uDDE6-\uDDFF][\uD83C][\uDDE6-\uDDFF]/.test(g) ? ` ${g} ` : g)
     .join('')
     .replace(/\s{2,}/g, ' ')
     .trim();

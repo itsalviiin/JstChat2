@@ -73,7 +73,7 @@
           <span class="tooltiptext">Adjust the thickness of the font<br />Play around until you find the right thickness for the font<br />(Not all fonts will have all possible font weights)</span>
           Font Weight:
         </span>
-        <input type="number" min="300" max="800" step="100" placeholder="36" v-model="font_weight" />
+        <input type="number" min="300" max="800" step="100" placeholder="800" v-model="font_weight" />
       </div>
 
       <br />
@@ -158,7 +158,7 @@
           <span class="tooltiptext">For best results, just leave this at 0<br />• 0 is the default size<br />• Positive number (add to default) to make it bigger<br />• Negative number (subtract to default) to make it smaller</span>
           Emote Size:
         </span>
-        <input type="number" min="-20" max="20" step="1" placeholder="36" v-model="emote_size" />
+        <input type="number" min="-20" max="20" step="1" placeholder="0" v-model="emote_size" />
         <span id="info">px</span>
       </div>
 
