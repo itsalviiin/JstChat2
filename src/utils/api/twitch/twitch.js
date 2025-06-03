@@ -4,6 +4,7 @@ export default class TwitchAPI {
     this.badges = {}
     this.userID = null
     this.emotePrefix = null
+    this.profileImg = null
   }
 
   async fetchData() {
@@ -12,6 +13,7 @@ export default class TwitchAPI {
     this.emotePrefix = userInfo.isPartner ? userInfo.prefix : null
     this.badges = await this.getGlobalBadges(this.userID)
     this.badges['subscriber'] = await this.getSubscriberBadges(this.userID)
+    this.profileImg = userInfo.profile
   }
 
   async getGlobalBadges(user_id) {
@@ -59,7 +61,8 @@ export default class TwitchAPI {
       return {
         id: json[0].id,
         prefix: json[0].emotePrefix,
-        isPartner: json[0].roles.isPartner
+        isPartner: json[0].roles.isPartner,
+        profile: json[0].logo
       }
     }
     throw 'Unable to get user id from ivr API!'

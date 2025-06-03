@@ -81,13 +81,13 @@
       <br />
 
       <div id="example" v-bind:style="{ fontFamily: font != 'Custom' ? font : custom_font, fontWeight: font_weight, fontSize: font_size + 'px', backgroundColor: Background }">
-        <div id="message">
+        <div id="message_example">
           <img class="badges" src="https://static-cdn.jtvnw.net/badges/v1/5527c58c-fb7d-422d-b71b-f309dcb85cc1/2" />
           <img class="badges" src="https://static-cdn.jtvnw.net/badges/v1/5d9f2208-5dd8-11e7-8513-2ff4adfae661/2" />
           <img class="badges" src="https://static-cdn.jtvnw.net/badges/v1/2de71f4f-b152-4308-a426-127a4cf8003a/2" />
           <img class="badges" src="https://cdn.7tv.app/badge/01JM3F4N2Y65KKHDGWDEDFTJNA/2x.webp" />
           <span id="nickname" type="itsalviiin">itsalviiin: </span>
-          <span id="content">
+          <span id="content_example">
             <div class="emote">
               <span class="zero-width-emote-container" style="justify-content: center;">
                 <img class="emote" src="https://cdn.7tv.app/emote/01J0DY2ZD8000396FKBWMCJBB6/2x.webp" zerowidth="false">
@@ -97,30 +97,30 @@
           </div>
           </span>
         </div>
-        <div id="message">
+        <div id="message_example">
           <img class="badges" src="https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/2" />
           <img class="badges" src="https://static-cdn.jtvnw.net/badges/v1/d12a2e27-16f6-41d0-ab77-b780518f00a3/2" />
           <img class="badges" src="https://cdn.frankerfacez.com/badge/2/2/rounded" />
           <img class="badges" src="https://cdn.frankerfacez.com/badge/4/2/rounded" />
           <span id="nickname" type="streamelements">StreamElements </span>
-          <span id="content" style="color: #5B99FF;">
+          <span id="content_example" style="color: #5B99FF;">
             <img src="https://static-cdn.jtvnw.net/emoticons/v2/305954156/default/dark/2.0" /> <img class="emoji" draggable="false" alt="👉" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/72x72/1f449.png"> Check out this new chat overlay
           </span>
         </div>
-        <div id="message">
+        <div id="message_example">
           <img class="badges" src="https://static-cdn.jtvnw.net/badges/v1/b817aba4-fad8-49e2-b88a-7cc744dfa6ec/2" />
           <img class="badges" src="https://static-cdn.jtvnw.net/badges/v1/2de71f4f-b152-4308-a426-127a4cf8003a/2" />
           <span id="nickname" type="elis">elis: </span>
-          <span id="content">
+          <span id="content_example">
               do this
             <img class="emote" src="https://cdn.7tv.app/emote/01JTJPT7PDCEDEH59BMP6PGFN5/2x.webp" /> <img class="emote" src="https://cdn.7tv.app/emote/01JTJPT7PDCEDEH59BMP6PGFN5/2x.webp" /> <img class="emote" src="https://cdn.7tv.app/emote/01JTJPT7PDCEDEH59BMP6PGFN5/2x.webp" />
           </span>
         </div>
-        <div id="message">
+        <div id="message_example">
           <img class="badges" src="https://cdn.betterttv.net/badges/translator.svg" />
           <img class="badges" src="https://static-cdn.jtvnw.net/badges/v1/ae1c6c62-c057-4fad-a1d4-663bf988701f/2" />
           <span id="nickname" type="glorp">glorp: </span>
-          <span id="content">
+          <span id="content_example">
             <span class="zero-width-emote-container" style="justify-content: center;">
               <img class="emote" src="https://cdn.7tv.app/emote/01HNEKZY4G0001XDKW9GFY7KKV/2x.webp" style="z-index: -1;" zerowidth="true">
               <img class="emote" src="https://cdn.7tv.app/emote/01GGRX0GNR0005JFNK2VC9HTVR/2x.webp" zerowidth="false">
@@ -128,22 +128,22 @@
             it's cool I guess
           </span>
         </div>
-        <div id="message" style="background-color: rgba(92, 125, 86, 0.4);">
+        <div id="message_example" style="background-color: rgba(92, 125, 86, 0.4);">
           <img class="badges" src="https://static-cdn.jtvnw.net/badges/v1/e2ba99f4-6079-44d1-8c07-4ca6b58de61f/2" />
           <img class="badges" src="https://fourtf.com/chatterino/badges/supporter2x.png" />
           <img class="badges" src="https://cdn.7tv.app/badge/01JAT9BASQDPE5VV0PMXRYND9E/3x" />
           <span id="nickname" type="goldenkappa">GoldenKappa(골든카파): </span>
-          <span id="content">
+          <span id="content_example">
             <img src="https://static-cdn.jtvnw.net/emoticons/v2/80393/default/dark/2.0" />
             hello im new
           </span>
         </div>
-        <div id="message">
+        <div id="message_example">
           <img class="badges" src="https://static-cdn.jtvnw.net/badges/v1/d12a2e27-16f6-41d0-ab77-b780518f00a3/2" />
           <img class="badges" src="https://cdn.frankerfacez.com/badge/3/2/rounded" />
           <img class="badges" src="https://cdn.7tv.app/badge/01GJGS2XY00002GRV318PGDRKV/2x.webp" />
           <span id="nickname" type="deme">deme: </span>
-          <span id="content">
+          <span id="content_example">
             <img src="https://cdn.7tv.app/emote/01HS0YC6PR00053R068FSDQXNG/2x.webp" />
           </span>
         </div>
@@ -193,15 +193,25 @@
 
       <div id="param">
         <span id="info" v-bind:style="{ fontWeight: 700 }">Fade Messages (0 = Permanent):</span>
-        <input type="number" min="0" step="5" placeholder="seconds" v-model="fade" />
+        <input type="number" min="0" step="5" placeholder="0" v-model="fade" />
         <span id="info"> seconds</span>
       </div>
+
       <div id="param">
         <label class="tooltip" for="hide_animation" v-bind:style="{ fontWeight: 700 }">
           <span class="tooltiptext">Chat messages are animated as they come in</span>
           Animate Chat Messages:
         </label>
         <input id="hide_animation" type="checkbox" v-model="animate" value="true" checked />
+      </div>
+
+      <div id="param">
+        <span id="info" class="tooltip" v-bind:style="{ fontWeight: 700 }">
+          <span class="tooltiptext">Messages get displayed in intervals, making messages more readable in fast chats<br /><br />• 0 seconds = Instant</span>
+          Message Display Interval:
+        </span>
+        <input type="number" min="0" max="1" step="0.1" placeholder="0.2" v-model="display_interval" />
+        <span id="info"> seconds</span>
       </div>
 
       <div id="param">
@@ -215,7 +225,7 @@
       <div id="param">
         <label class="tooltip" for="highlight_first_time_messages" v-bind:style="{ fontWeight: 700 }">
           <span class="tooltiptext">Messages from first time chatters will have a semi-transparent background color</span>
-          Highlight First Time Chatters:
+          Highlight First Time Messages:
         </label>
         <input id="highlight_first_time_messages" type="checkbox" v-model="highlight_first_time_messages" value="false" checked />
       </div>
@@ -231,7 +241,7 @@
       <div id="param">
         <label class="tooltip" for="hide_personal_emotes" v-bind:style="{ fontWeight: 700 }">
           <span class="tooltiptext">
-            Do not display personal emotes from 7TV.<br />Personal emotes are emotes where users with 7TV subscriptions have set as their own emote set
+            Do not display personal emotes from 7TV<br /><br />• Personal emotes are emotes where users with 7TV subscriptions have set as their own emote set
           </span>
           Hide Personal Emotes:
         </label>
@@ -240,7 +250,7 @@
       <div id="param">
         <label class="tooltip" for="hide_unlisted_emotes" v-bind:style="{ fontWeight: 700 }">
           <span class="tooltiptext">
-            Do not display unlisted emotes from 7TV.<br />Unlisted emotes are emotes that have not been approved, either because it is a recently added emote or because it might be slightly NSFW/TOS
+            Do not display unlisted emotes from 7TV<br /><br />• Unlisted emotes are emotes that have not been approved, either because it is a recently added emote or because it might be slightly NSFW/TOS
           </span>
           Hide Unlisted Emotes:
         </label>
@@ -249,7 +259,7 @@
       <div id="param">
         <label class="tooltip" for="hide_private_emotes" v-bind:style="{ fontWeight: 700 }">
           <span class="tooltiptext">
-            Do not display private emotes from 7TV.<br />Private emotes are emotes that can no longer be added to any channel
+            Do not display private emotes from 7TV<br /><br />• Private emotes are emotes that can no longer be added to any channel
           </span>
           Hide Private Emotes:
         </label>
@@ -264,7 +274,7 @@
       <div id="param">
         <label class="tooltip" for="hide_special_badges" v-bind:style="{ fontWeight: 700 }">
           <span class="tooltiptext">
-            Hide badges from BTTV, FFZ, 7TV, and Chatterino.<br />Each one is toggleable
+            Hide badges from BTTV, FFZ, 7TV, and Chatterino.<br /><br />• Each one is toggleable
           </span>
           Hide Special Badges:
         </label>
@@ -298,11 +308,15 @@
           </span>
           Shared Chat Badge:
           </span>
-        <select id="selector" v-model="display_shared_chat_badge" @change="changeCustomFont" >
+        <select id="selector" v-model="display_shared_chat_badge" @change="changeOwnProfile" >
           <option value="off">Off</option>
           <option value="simple">Simple</option>
           <option value="profile">Profile Image</option>
         </select>
+      </div>
+      <div id="param">
+        <label id="selfSharedBadgeOption" for="selfSharedBadgeOption">Display own Profile Image:</label>
+        <input id="selfSharedBadgeOption" type="checkbox" v-model="self_shared_badge" value="false" checked />
       </div>
 
       <div id="param">
@@ -392,6 +406,7 @@ export default {
 
       fade: '0',
       animate: 'false',
+      display_interval: '0.2',
       readable_colors: 'true',
       highlight_first_time_messages: 'false',
       highlight_redeemed_messages: 'false',
@@ -408,6 +423,8 @@ export default {
       hide_7tv_badges: 'false',
       hide_chatterino_badges: 'false',
       display_shared_chat_badge: 'off',
+      show_self_shared_badge_option: 'false',
+      self_shared_badge: 'false',
 
       hide_bots: 'true',
       hide_commands: 'false',
@@ -430,6 +447,7 @@ export default {
           border = '',
           fade = '',
           animate = '',
+          display_interval = '',
           readable_colors = '',
           highlight_first_time = '',
           highlight_redeemed = '',
@@ -442,6 +460,7 @@ export default {
           hide_7tv_badge = '',
           hide_chatterino_badge = '',
           shared_chat_badge = '',
+          self_shared_badge = '',
           hide_bots = '',
           hide_commands = '',
           ignore = '',
@@ -460,6 +479,7 @@ export default {
       border = this.border != 'false' ? `&border=2` : ``
       fade = this.fade != '0' ? `&fade_after=${this.fade}` : ``
       animate = this.animate != 'false' ? `&animate=${this.animate}` : ``
+      display_interval = parseFloat(this.display_interval) * 1000 != 200 ? `&display_interval=${parseFloat(this.display_interval) * 1000}` : ``
       readable_colors = this.readable_colors != 'true' ? `&readable_colors=${this.readable_colors}` : ``
       highlight_first_time = this.highlight_first_time_messages != 'false' ? `&highlight_first_time=${this.highlight_first_time_messages}` : ``
       highlight_redeemed = this.highlight_redeemed_messages != 'false' ? `&highlight_redeemed=${this.highlight_redeemed_messages}` : ``
@@ -472,12 +492,13 @@ export default {
       hide_7tv_badge = this.hide_7tv_badges != 'false' ? `&hide_7tv_badge=${this.hide_7tv_badges}` : ``
       hide_chatterino_badge = this.hide_chatterino_badges != 'false' ? `&hide_chatterino_badge=${this.hide_chatterino_badges}` : ``
       shared_chat_badge = this.display_shared_chat_badge != 'off' ? `&shared_chat_badge=${this.display_shared_chat_badge}` : ``
+      self_shared_badge = this.self_shared_badge != 'false' ? `&self_shared_badge=${this.self_shared_badge}` : ``
       hide_bots = this.hide_bots != 'true' ? `&hide_bots=${this.hide_bots}` : ``
       hide_commands = this.hide_commands != 'false' ? `&hide_commands=${this.hide_commands}` : ``
       ignore = this.ignore != '' ? `&hide=${this.ignore.replace(/\s+/g, '')}` : ``
       filter = this.filter_messages != '' ? `&filter=${encodeURIComponent(this.filter_messages)}` : ``
 
-      return `https://itsalviiin.github.io/JstChat2/#/chat?channel=${this.channel.toLowerCase()}&font=${encodeURIComponent(font)}${font_size}${font_weight}${emote_size}${shadow}${bg}${nb}${border}${fade}${animate}${readable_colors}${highlight_first_time}${highlight_redeemed}${hide_personal}${hide_unlisted}${hide_private}${hide_paints}${hide_bttv_badge}${hide_ffz_badge}${hide_7tv_badge}${hide_chatterino_badge}${shared_chat_badge}${hide_bots}${hide_commands}${ignore}${filter}`
+      return `https://itsalviiin.github.io/JstChat2/#/chat?channel=${this.channel.toLowerCase()}&font=${encodeURIComponent(font)}${font_size}${font_weight}${emote_size}${shadow}${bg}${nb}${border}${fade}${animate}${display_interval}${readable_colors}${highlight_first_time}${highlight_redeemed}${hide_personal}${hide_unlisted}${hide_private}${hide_paints}${hide_bttv_badge}${hide_ffz_badge}${hide_7tv_badge}${hide_chatterino_badge}${shared_chat_badge}${self_shared_badge}${hide_bots}${hide_commands}${ignore}${filter}`
     },
     showBackgroundOptions() {
       if (this.show_bg_options == 'true') {
@@ -488,6 +509,13 @@ export default {
     },
     showBadgeOptions() {
       if (this.show_badges_options == 'true') {
+        return `initial`
+      } else {
+        return `none`
+      }
+    },
+    showSelfSharedBadgeOption() {
+      if (this.show_self_shared_badge_option == 'true') {
         return `initial`
       } else {
         return `none`
@@ -564,6 +592,15 @@ export default {
           break
       }
     },
+    changeOwnProfile() {
+      if(this.display_shared_chat_badge == 'profile') {
+        this.show_self_shared_badge_option = 'true'
+        this.self_shared_badge = 'true'
+      } else {
+        this.show_self_shared_badge_option = 'false'
+        this.self_shared_badge = 'false'
+      }
+    }
   },
 }
 </script>
@@ -640,7 +677,7 @@ html {
   vertical-align: middle;
 }
 
-#message {
+#message_example {
   padding-top: 4px;
   padding-bottom: 4px;
 }
@@ -714,16 +751,16 @@ html {
     vertical-align: bottom;
 }
 
-#content img {
+#content_example img {
   vertical-align: middle;
 }
 
-#content .emote {
+#content_example .emote {
   display: inline;
   vertical-align: middle;
 }
 
-#content img[zerowidth='true'] {
+#content_example img[zerowidth='true'] {
   position: absolute;
 }
 
@@ -741,6 +778,12 @@ html {
 
 #param>#badgeOptions {
   display: v-bind('showBadgeOptions');
+  font-size: 1.5em;
+  margin-left: 2em;
+}
+
+#param>#selfSharedBadgeOption {
+  display: v-bind('showSelfSharedBadgeOption');
   font-size: 1.5em;
   margin-left: 2em;
 }
@@ -789,7 +832,7 @@ input[type='checkbox'] {
   accent-color: #2196f3;
 }
 
-#content .emoji {
+#content_example .emoji {
   vertical-align: bottom;
   filter: unset;
   width: auto;

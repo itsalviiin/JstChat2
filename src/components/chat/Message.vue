@@ -17,11 +17,17 @@ export default {
       let badges = []
 
       /** Shared Chat Badge */
-      if(this.payload.tags["source_room-id"] && this.payload.tags.room_id != this.payload.tags["source_room-id"] && this.pageConfig.sharedChatBadge != 'off') {
+      if (this.payload.tags["source_room-id"] && this.payload.tags.room_id != this.payload.tags["source_room-id"] && this.pageConfig.sharedChatBadge != 'off') {
         if(this.pageConfig.sharedChatBadge == 'simple') {
           badges.push(this.ChatBadge[this.payload.tags["source_room-id"]])
         } else if(this.pageConfig.sharedChatBadge == 'profile') {
           badges.push(Chat.getProfilePic(this.payload.tags["source_room-id"]))
+        }
+      } else if(this.payload.tags["source_room-id"] && this.payload.tags.room_id == this.payload.tags["source_room-id"] && this.pageConfig.sharedChatBadge == 'profile' && this.pageConfig.selfSharedBadge == 'true') {
+        console.log("THIS IS OWN CHAT MESSAGE")
+        console.log(this.api.twitch.profileImg)
+        if(this.api.twitch.profileImg) {
+          badges.push(this.api.twitch.profileImg)
         }
       }
 
@@ -196,8 +202,9 @@ export default {
   border-top: v-bind(Border);
   color: v-bind('SlashMe');
   background-color: v-bind('Background');
-  padding-top: 4px;
-  padding-bottom: 4px;
+  padding-top: 3px;
+  padding-bottom: 3px;
+  padding-left: 5px;
   line-height: 1.5em;
 }
 
@@ -225,9 +232,6 @@ export default {
 }
 
 #content .emoji {
-  vertical-align: bottom;
-  filter: unset;
-  width: auto;
   max-height: v-bind('EmojiSize');
 }
 

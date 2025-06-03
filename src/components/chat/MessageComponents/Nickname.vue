@@ -87,7 +87,6 @@ export default {
 .nickname {
   color: v-bind('Color');
   filter: v-bind('filter');
-  margin-left: 4px;
   background-size: cover;
 }
 

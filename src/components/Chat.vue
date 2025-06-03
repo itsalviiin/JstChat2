@@ -15,6 +15,7 @@ export default {
       api: null,
       showOverlay: true,
       messages: [],
+      temp: [],
       useBG: 0,
       filterRegex: null,
 
@@ -47,7 +48,7 @@ export default {
       pageConfig: {
         maxMes: 50,
         channel: this.$route.query.channel,
-        fontName: this.$route.query.font || 'Quicksand',
+        fontName: this.$route.query.font || 'Roboto',
         fontWeight: parseInt(this.$route.query.font_weight || '800'),
 
         fontSizeI: parseInt(this.$route.query.font_size || '36'),
@@ -60,6 +61,7 @@ export default {
         fade: parseInt(this.$route.query.fade_after || '0'),
 
         animate: this.$route.query.animate || 'false',
+        displayInterval: parseInt(this.$route.query.display_interval || '200'),
         readableColors: this.$route.query.readable_colors || 'true',
         highlightedFirstMessages: this.$route.query.highlight_first_time || 'false',
         highlightedPointMessages: this.$route.query.highlight_redeemed || 'false',
@@ -73,6 +75,7 @@ export default {
         hide7TVBadges: this.$route.query.hide_7tv_badge || 'false',
         hideChatterinoBadges: this.$route.query.hide_chatterino_badge || 'false',
         sharedChatBadge: this.$route.query.shared_chat_badge || 'off',
+        selfSharedBadge: this.$route.query.self_shared_badge || 'true',
 
         hideBots: this.$route.query.hide_bots || 'true',
         hideCommands: this.$route.query.hide_commands || 'false',
@@ -179,7 +182,11 @@ export default {
         }
       }
 
-      this.messages.push(message)
+      if(this.pageConfig.displayInterval != 0) {
+        this.temp.push(message)
+      } else {
+        this.messages.push(message)
+      }
     },
     async createSystemMessage(message) {
       if (this.messages.length >= this.pageConfig.maxMes) {
@@ -342,6 +349,24 @@ export default {
       return `none`
     }
   },
+  mounted() {
+    if(this.pageConfig.displayInterval != 0) {
+      this.displayInterval = setInterval(() => {
+        if (this.temp.length > 0) {
+          this.messages.push(...this.temp);
+        }
+        let linesToDelete = this.messages.length - 50
+        while(linesToDelete > 0) {
+          this.messages.shift()
+          linesToDelete--
+        }
+        this.temp = []
+      }, this.pageConfig.displayInterval);
+    }
+  },
+  beforeUnmount() {
+    clearInterval(this.displayInterval);
+  }
 }
 </script>
 
@@ -363,7 +388,6 @@ export default {
   font-size: v-bind('fontSize');
   overflow: hidden;
   overflow-wrap: break-word;
-  /* padding-left: 4px; */
 }
 
 @keyframes fadeInUp {

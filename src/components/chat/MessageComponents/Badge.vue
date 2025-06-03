@@ -21,7 +21,6 @@ export default {
 .badge {
   height: v-bind('size');
   vertical-align: -4px;
-  margin-left: 4px;
-  padding-right: 1px;
+  padding-right: 5px;
 }
 </style>
