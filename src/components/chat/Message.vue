@@ -172,7 +172,7 @@ export default {
       :pageConfig="pageConfig" />
 
     <Nickname
-      :nick="payload.tags.display_name.toLowerCase() === payload.source.nick ? payload.tags.display_name : `${payload.source.nick}(${payload.tags.display_name})`"
+      :nick="payload.tags.display_name.toLowerCase().trim() === payload.source.nick ? payload.tags.display_name : `${payload.source.nick}(${payload.tags.display_name})`"
       :color="UserColor"
       :pageConfig="pageConfig"
       :Background="Background"
