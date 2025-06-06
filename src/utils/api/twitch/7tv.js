@@ -28,7 +28,12 @@ export default {
           })
         }
 
-        let owner = json.owner.username
+        let owner
+        for (const connection of json.owner.connections) {
+          if (connection.platform == "TWITCH") {
+            owner = connection.id
+          }
+        }
 
         return [emotes, owner]
       } else {

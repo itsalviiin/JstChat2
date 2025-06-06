@@ -73,7 +73,7 @@ export default {
       if (this.api.stvbadges &&  this.pageConfig.hide7TVBadges == 'false') {
         for (const value of this.api.stvbadges) {
           if (value.users.includes(this.payload.tags.user_id)) {
-            badges.push(value.Url)
+            badges.push(value.url)
           }
         }
       }
@@ -172,7 +172,7 @@ export default {
       :pageConfig="pageConfig" />
 
     <Nickname
-      :nick="payload.tags.display_name.toLowerCase().trim() === payload.source.nick ? payload.tags.display_name : `${payload.source.nick}(${payload.tags.display_name})`"
+      :nick="payload.tags.display_name.toLowerCase().replace(`\\s`, ``).trim() === payload.source.nick ? payload.tags.display_name.replace(`\\s`, ``) : `${payload.source.nick}(${payload.tags.display_name.replace(`\\s`, ``)})`"
       :color="UserColor"
       :pageConfig="pageConfig"
       :Background="Background"
@@ -186,7 +186,7 @@ export default {
         emotes: {
           twitch: TwitchEmotes,
           ext: api.emotes,
-          personal: pageConfig.hidePersonalEmotes == 'false' ? api.personalEmotes[payload.source.nick] : undefined,
+          personal: pageConfig.hidePersonalEmotes == 'false' ? api.personalEmotes[payload.tags.user_id] : undefined,
         },
         scale: pageConfig.emoteSizeI,
       }"

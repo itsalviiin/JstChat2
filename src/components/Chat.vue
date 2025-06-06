@@ -103,7 +103,7 @@ export default {
           return
         }
       }
-      let pos = this.api.stvbadges.push({ Url: `https:${e.data.host.url}/2x`, id: e.data.id }) - 1
+      let pos = this.api.stvbadges.push({ url: `https:${e.data.host.url}/2x`, id: e.data.id }) - 1
       this.api.stvbadges[pos].users = [e.user.id]
     },
     async onBadgeDelete(e) {

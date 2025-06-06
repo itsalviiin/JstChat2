@@ -30,8 +30,6 @@ export default class API {
   }
 
   async fetchEmotes(hideUnlistedEmotes, hidePrivateEmotes) {
-    let em;
-
     /** Global Emotes */
     this.emotes = Object.assign(this.emotes, await this.BTTV.getBttvGlobalEmotes())
     this.emotes = Object.assign(this.emotes, await this.FFZ.getFfzGlobalEmotes(this.twitch.userID))
@@ -39,6 +37,7 @@ export default class API {
 
     this.emotes = Object.assign(this.emotes, await this.BTTV.getBttvEmotes(this.twitch.userID))
 
+    let em;
     em = await this.FFZ.getFfzEmotes(this.twitch.channel)
     if (em[1] != undefined) {
       this.twitch.badges["moderator"] = { '1': em[1] }

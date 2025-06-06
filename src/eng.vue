@@ -73,7 +73,7 @@
           <span class="tooltiptext">Adjust the thickness of the font<br />Play around until you find the right thickness for the font<br />(Not all fonts will have all possible font weights)</span>
           Font Weight:
         </span>
-        <input type="number" min="300" max="800" step="100" placeholder="800" v-model="font_weight" />
+        <input type="number" min="100" max="900" step="100" placeholder="800" v-model="font_weight" />
       </div>
 
       <br />
