@@ -2,7 +2,7 @@
 import Message from './chat/Message.vue'
 import TwitchClient from '@/utils/chat_clients/twitch/client'
 import API from '@/utils/api/api'
-import Common from '@/utils/common'
+// import Common from '@/utils/common'
 import EventAPI from '@/utils/eventapi/seventv'
 
 export default {
@@ -14,9 +14,12 @@ export default {
       client: null,
       api: null,
       showOverlay: true,
+      pauseOverlay: false,
       messages: [],
       temp: [],
       useBG: 0,
+      systemIdx: 0,
+      systemMsgID: 0,
       filterRegex: null,
 
       botsList: [
@@ -46,7 +49,7 @@ export default {
       ],
 
       pageConfig: {
-        maxMes: 50,
+        maxMes: this.$route.query.max_messages || 50,
         channel: this.$route.query.channel,
         fontName: this.$route.query.font || 'Roboto',
         fontWeight: parseInt(this.$route.query.font_weight || '800'),
@@ -55,17 +58,27 @@ export default {
         emoteSizeI: parseInt(this.$route.query.emote_size || '0'),
         shadow: this.$route.query.shadow || 'true',
 
-        backgrounds: [this.$route.query.background || 'transparent'],
+        // backgrounds: this.$route.query.background || ['transparent'],
+        background: this.$route.query.background || 'transparent',
         calcSecondBackgrounds: parseInt(this.$route.query.sb || '5'),
-        border: this.$route.query.border || '0',
-        fade: parseInt(this.$route.query.fade_after || '0'),
+        border: this.$route.query.border || 'false',
 
+        /** Overlay Visual */
+        fade: parseInt(this.$route.query.fade_after || '0'),
         animate: this.$route.query.animate || 'false',
         displayInterval: parseInt(this.$route.query.display_interval || '200'),
         readableColors: this.$route.query.readable_colors || 'true',
-        highlightedFirstMessages: this.$route.query.highlight_first_time || 'false',
-        highlightedPointMessages: this.$route.query.highlight_redeemed || 'false',
 
+        /** Customizable Messages */
+        overlaySysMsg: this.$route.query.overlay_sys_msg || 'false',
+        twitchSysMsg: this.$route.query.twitch_sys_msg || 'false',
+        stvSysMsg: this.$route.query.stv_sys_msg || 'false',
+        systemMsgColor: this.$route.query.system_color || '#999999',
+        // highlightSystemMessages: this.$route.query.highlight_system || 'false',
+        highlightFirstMessages: this.$route.query.highlight_first_time || 'false',
+        highlightPointMessages: this.$route.query.highlight_redeemed || 'false',
+
+        /** Emotes & Cosmetics */
         hidePersonalEmotes: this.$route.query.hide_personal || 'false',
         hideUnlistedEmotes: this.$route.query.hide_unlisted || 'false',
         hidePrivateEmotes: this.$route.query.hide_private || 'false',
@@ -77,24 +90,39 @@ export default {
         sharedChatBadge: this.$route.query.shared_chat_badge || 'off',
         selfSharedBadge: this.$route.query.self_shared_badge || 'true',
 
+        /** Filters */
         hideBots: this.$route.query.hide_bots || 'true',
         hideCommands: this.$route.query.hide_commands || 'false',
         hideUsers: this.$route.query.hide?.toLowerCase().split(',') || [],
         filter: decodeURIComponent(this.$route.query.filter) || '',
-
       },
     }
   },
   methods: {
     async onEmoteAdd(e) {
-      this.api.emotes[e.value.name] = { ID: e.value.id, Type: '7TV' }
+      this.api.emotes[e.value.name] = {
+        ID: e.value.id,
+        Type: '7TV',
+        ZeroWidth: e.value.flags == 1,
+        width: e.value.data.host.files[1].width,
+        height: e.value.data.host.files[1].height,
+      }
+      if (this.pageConfig.stvSysMsg == 'true') {
+        this.createSystemMessage(`[7TV] Added ${e.value.name}`)
+      }
     },
     async onEmoteDelete(e) {
       delete this.api.emotes[e.old_value.name]
+      if (this.pageConfig.stvSysMsg == 'true') {
+        this.createSystemMessage(`[7TV] Removed ${e.value.name}`)
+      }
     },
     async onEmoteRename(e) {
       this.api.emotes[e.value.name] = this.api.emotes[e.old_value.name]
       delete this.api.emotes[e.old_value.name]
+      if (this.pageConfig.stvSysMsg == 'true') {
+        this.createSystemMessage(`[7TV] Renamed ${e.old_value.name} to ${e.value.name}`)
+      }
     },
     async onBadgeCreate(e) {
       for (const i in this.api.stvbadges) {
@@ -141,21 +169,39 @@ export default {
         this.api.personalEmotes[user] = e
       }
     },
+    async OnFadeAfter(id) {
+      if (this.pageConfig.fade != 0) {
+        setTimeout(
+          () => {
+            const message = this.messages.find(
+              (item) => item.tags.id == id,
+            )
+            if (message) {
+              /** Add fadeOut flag to the message */
+              message.fadeOut = true
+            }
+          },
+          parseInt(this.pageConfig.fade) * 1000
+        )
+      }
+    },
     createTwitchMessage(message) {
       if (this.messages.length >= this.pageConfig.maxMes) {
         this.messages.shift()
       }
       message.type = 'twitch'
 
-      message.background = this.useBG
-      if (this.useBG + 1 > this.pageConfig.backgrounds.length - 1) {
-        this.useBG = 0
-      } else {
-        this.useBG += 1
-      }
+      message.background = `#${this.pageConfig.background}`
 
-      if(this.pageConfig.hideBots == 'true') {
-        if(this.botsList.includes(message.tags.user_id)) {
+      // message.background = this.useBG
+      // if (this.useBG + 1 > this.pageConfig.backgrounds.length - 1) {
+      //   this.useBG = 0
+      // } else {
+      //   this.useBG += 1
+      // }
+
+      if (this.pageConfig.hideBots == 'true') {
+        if (this.botsList.includes(message.tags.user_id)) {
           return
         }
       }
@@ -176,63 +222,101 @@ export default {
         }
       }
 
+      /** Remove messages that match the regex */
       if (this.filterRegex) {
-        if(message.parameters.match(this.filterRegex)) {
+        if (message.parameters.match(this.filterRegex)) {
           return
         }
       }
 
-      if(this.pageConfig.displayInterval != 0) {
+      /** If overlay is paused, don't add messages */
+      if (this.pauseOverlay) {
+        return
+      }
+
+      if (this.pageConfig.displayInterval != 0) {
         this.temp.push(message)
       } else {
         this.messages.push(message)
       }
+      this.OnFadeAfter(message.tags.id)
     },
     async createSystemMessage(message) {
       if (this.messages.length >= this.pageConfig.maxMes) {
         this.messages.shift()
       }
-      let mes = {
+      let sysMsg = {
         parameters: message,
-        tags: { display_name: '', id: '0', color: "#999999" },
-        source: { nick: 'system' },
+        tags: { display_name: '', id: `${this.systemMsgID}`, color: this.pageConfig.systemMsgColor },
+        source: { nick: '' },
         action: true
       }
-      mes.type = 'system'
+      sysMsg.type = 'system'
 
-      mes.background = this.useBG
-      if (this.useBG + 1 > this.pageConfig.backgrounds.length - 1) {
-        this.useBG = 0
+      sysMsg.background = `#${this.pageConfig.background}`
+      // sysMsg.background = this.useBG
+      // if (this.useBG + 1 > this.pageConfig.backgrounds.length - 1) {
+      //   this.useBG = 0
+      // } else {
+      //   this.useBG += 1
+      // }
+
+      if (this.pageConfig.displayInterval != 0) {
+        this.temp.push(sysMsg)
       } else {
-        this.useBG += 1
+        this.messages.push(sysMsg)
       }
+      this.OnFadeAfter(sysMsg.tags.id)
+      this.systemMsgID++
+    },
+    createTwitchUsernoticeMessage(message) {
+      if (this.pageConfig.twitchSysMsg == 'true') {
+        if (this.messages.length >= this.pageConfig.maxMes) {
+          this.messages.shift()
+        }
+        let sysMsg = {
+          parameters: message,
+          tags: { display_name: '', id: `${this.systemMsgID}`, color: this.pageConfig.systemMsgColor },
+          source: { nick: '' },
+          action: true
+        }
+        sysMsg.type = 'system'
 
-      this.messages.push(mes)
+        sysMsg.background = `#${this.pageConfig.background}`
+
+        if (this.pageConfig.displayInterval != 0) {
+          this.temp.push(sysMsg)
+        } else {
+          this.messages.push(sysMsg)
+        }
+        this.OnFadeAfter(sysMsg.tags.id)
+        this.systemMsgID++
+      }
     },
   },
   created: async function () {
-    if (
-      this.pageConfig.calcSecondBackgrounds > 0 &&
-      this.pageConfig.backgrounds[0] != 'transparent'
-    ) {
-      for (let index = 0; index < this.pageConfig.calcSecondBackgrounds; index++) {
-        let minus = 1
-        let ind = index
+    // if (
+    //   this.pageConfig.calcSecondBackgrounds > 0 &&
+    //   this.pageConfig.backgrounds != 'transparent'
+    // ) {
+    //   for (let index = 0; index < this.pageConfig.calcSecondBackgrounds; index++) {
+    //     let minus = 1
+    //     let ind = index
 
-        if (this.pageConfig.calcSecondBackgrounds / 2 <= index) {
-          ind = this.pageConfig.calcSecondBackgrounds - index - 1
-        }
+    //     if (this.pageConfig.calcSecondBackgrounds / 2 <= index) {
+    //       ind = this.pageConfig.calcSecondBackgrounds - index - 1
+    //     }
 
-        let gray = Common.toGray(this.pageConfig.backgrounds[ind])
-        if (gray > 0.38) {
-          minus = -30 / gray
-        }
+    //     let gray = Common.toGray(this.pageConfig.backgrounds[ind])
+    //     if (gray > 0.38) {
+    //       minus = -30 / gray
+    //     }
 
-        this.pageConfig.backgrounds.push(
-          Common.pSBC(0.01 * minus, this.pageConfig.backgrounds[ind]),
-        )
-      }
-    }
+    //     this.pageConfig.backgrounds.push(
+    //       Common.pSBC(0.01 * minus, this.pageConfig.backgrounds[ind]),
+    //     )
+    //   }
+    // }
 
     if (this.pageConfig.filter != '') {
       this.filterRegex = new RegExp(this.pageConfig.filter, "i")
@@ -261,15 +345,15 @@ export default {
 
     this.client = new TwitchClient(this.pageConfig.channel)
     this.client.OnPrivateMessage = this.createTwitchMessage
-    this.client.newSystemMessage = this.createSystemMessage
-    this.client.OnUserId = (id) => {
+    this.client.OnSystemMessage = this.createTwitchUsernoticeMessage
+    this.client.OnFadeAfter = this.OnFadeAfter
+    this.client.OnUserID = (id) => {
       if (this.userID == null) {
         this.userID = id
       }
     }
     this.client.OnClearChat = async (payload) => {
       if (payload.parameters == null) {
-        /** if paramaters, its a timeout. if not, its a clear chat */
         this.messages = []
       } else {
         this.messages = this.messages.filter((item) => item.source.nick !== payload.parameters)
@@ -278,57 +362,55 @@ export default {
     this.client.OnClearMessage = async (payload) => {
       this.messages = this.messages.filter((item) => item.parameters !== payload.parameters)
     }
-    this.client.OnFadeAfter = async (payload) => {
-      if (this.pageConfig.fade != '0') {
-        setTimeout(
-          () => {
-            const message = this.messages.find(
-              (item) => item.tags['id'] === payload.tags.id || item.tags['id'] === '0',
-            )
-            if (message) {
-              /** Add fadeOut flag to the message */
-              message.fadeOut = true
-            }
-            /** Optionally remove the message after fade-out animation */
-            setTimeout(() => {
-              this.messages = this.messages.filter(
-                (item) => item.tags['id'] !== payload.tags.id && item.tags['id'] !== '0',
-              )
-            }, 1000) /** Wait for the fade-out animation to finish */
-          },
-          parseInt(this.pageConfig.fade) * 1000
-        )
-      }
-    }
     this.client.OnCommandExecution = async (payload) => {
       switch (payload?.command?.botCommand.toLowerCase()) {
         case "refreshoverlay":
+        case "reloadoverlay":
           window.location.reload()
           break
+        case "reloademotes":
         case "refreshemotes":
           this.api.fetchEmotes(this.pageConfig.hideUnlistedEmotes, this.pageConfig.hidePrivateEmotes)
-          // this.createSystemMessage('Emotes have been reloaded.')
+          if (this.pageConfig.stvSysMsg == 'true') {
+            this.createSystemMessage('Emotes have been reloaded.')
+          }
           break
         case "hideoverlay":
-          if(this.showOverlay) {
+          if (this.showOverlay) {
             this.showOverlay = false
           }
           break
         case "showoverlay":
-          if(!this.showOverlay) {
+          if (!this.showOverlay) {
             this.showOverlay = true
+          }
+          break
+        case "pauseoverlay":
+          if (!this.pauseOverlay) {
+            this.pauseOverlay = true
+            this.createSystemMessage('Paused Overlay.')
+          }
+          break
+        case "unpauseoverlay":
+        case "resumeoverlay":
+          if (this.pauseOverlay) {
+            this.pauseOverlay = false
+            this.createSystemMessage('Unpaused Overlay.')
           }
           break
       }
     }
     this.client.connect()
+    if (this.pageConfig.overlaySysMsg == 'true') {
+      this.createSystemMessage(`Connected to #${this.pageConfig.channel}!`)
+    }
   },
   computed: {
     fontSize() {
       return `${this.pageConfig.fontSizeI}px`
     },
     isTransparent() {
-      return this.pageConfig.backgrounds[0] == 'transparent'
+      return this.pageConfig.background == 'transparent'
     },
     fontName() {
       return this.pageConfig.fontName
@@ -350,13 +432,13 @@ export default {
     }
   },
   mounted() {
-    if(this.pageConfig.displayInterval != 0) {
+    if (this.pageConfig.displayInterval != 0) {
       this.displayInterval = setInterval(() => {
         if (this.temp.length > 0) {
           this.messages.push(...this.temp);
         }
         let linesToDelete = this.messages.length - 50
-        while(linesToDelete > 0) {
+        while (linesToDelete > 0) {
           this.messages.shift()
           linesToDelete--
         }
@@ -392,11 +474,13 @@ export default {
 
 @keyframes fadeInUp {
   from {
-    transform: translate3d(0, 0.2em, 0);
+    transform: translate3d(0, 0.5em, 0);
+    opacity: 0.5;
   }
 
   to {
     transform: translate3d(0, 0, 0);
+    opacity: 1;
   }
 }
 
@@ -413,7 +497,6 @@ export default {
 #chat>div {
   animation: v-bind('animation');
   filter: v-bind('shadow');
-  /* text-shadow: 2px 2px 6px black; */
 }
 
 #chat>div.fadeOut {

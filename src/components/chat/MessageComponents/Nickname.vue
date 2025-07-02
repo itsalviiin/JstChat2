@@ -24,7 +24,7 @@ export default {
     },
     Paint() {
       for (const value of this.Paints) {
-        if(this.pageConfig.hide7TVPaints == 'false') {
+        if (this.pageConfig.hide7TVPaints == 'false') {
           if (value.users.includes(this.userid)) {
             return value
           }
@@ -87,12 +87,12 @@ export default {
 .nickname {
   color: v-bind('Color');
   filter: v-bind('filter');
-  background-size: cover;
 }
 
 .nickname[HavePaints='true'] {
   -webkit-text-fill-color: transparent;
   -webkit-background-clip: text;
+  background-size: cover;
   background-clip: text !important;
   background-color: currentcolor;
   background-image: v-bind('bgImage');

@@ -42,7 +42,7 @@ class EventAPI {
 
   async onOpen() {
     this.IsDisconnected = false
-    console.log('EVENT API connected')
+    console.log('7TV Event API: Connected')
   }
 
   async onClose() {
@@ -50,7 +50,7 @@ class EventAPI {
 
     this.IsReconnecting = true
 
-    console.log('EVENT API disconnected: ')
+    console.log('7TV Event API: Disconnected')
     this.IsDisconnected = true
 
     this.attemps++
@@ -127,7 +127,7 @@ class EventAPI {
             break
           }
 
-          /** personal emotes */
+          /** Personal Emotes */
           case 'emote_set.create': {
             if (json.d.body.object.name != 'Personal Emotes') break
             let set_id = json.d.body.object.id
@@ -137,7 +137,7 @@ class EventAPI {
             break
           }
 
-          /** paints & badges */
+          /** Paints & Badges */
           case 'cosmetic.create': {
             switch (json.d.body.object.kind) {
               case 'PAINT': {
@@ -152,10 +152,9 @@ class EventAPI {
             break
           }
 
-          /** user id, cosmetics, and connections */
+          /** User ID, Cosmetics, and Connections */
           case 'entitlement.create': {
             let p = this.pending[json.d.body.object.ref_id]
-            // p = {object}
 
             if (p == undefined) break
 

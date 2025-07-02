@@ -70,37 +70,29 @@ class Colour {
    */
   static rgb2xyz(r, g, b, a = 1) {
     if (r > 255) {
-      // console.warn("Red value was higher than 255. It has been set to 255.");
       r = 255
     } else if (r < 0) {
-      // console.warn("Red value was smaller than 0. It has been set to 0.");
       r = 0
     }
     if (g > 255) {
-      // console.warn("Green value was higher than 255. It has been set to 255.");
       g = 255
     } else if (g < 0) {
-      // console.warn("Green value was smaller than 0. It has been set to 0.");
       g = 0
     }
     if (b > 255) {
-      // console.warn("Blue value was higher than 255. It has been set to 255.");
       b = 255
     } else if (b < 0) {
-      // console.warn("Blue value was smaller than 0. It has been set to 0.");
       b = 0
     }
     if (a > 1) {
-      // console.warn("Obacity value was higher than 1. It has been set to 1.");
       a = 1
     } else if (a < 0) {
-      // console.warn("Obacity value was smaller than 0. It has been set to 0.");
       a = 0
     }
     r = r / 255
     g = g / 255
     b = b / 255
-    // step 1
+    /** Step 1 */
     if (r > 0.04045) {
       r = Math.pow((r + 0.055) / 1.055, 2.4)
     } else {
@@ -116,11 +108,11 @@ class Colour {
     } else {
       b = b / 12.92
     }
-    // step 2
+    /** Step 2 */
     r = r * 100
     g = g * 100
     b = b * 100
-    // step 3
+    /** Step 3 */
     const x = r * 0.4124564 + g * 0.3575761 + b * 0.1804375
     const y = r * 0.2126729 + g * 0.7151522 + b * 0.072175
     const z = r * 0.0193339 + g * 0.119192 + b * 0.9503041
@@ -320,9 +312,9 @@ class Colour {
 
     const deltaE = Math.sqrt(
       Math.pow(deltalp / (kl * sl), 2) +
-        Math.pow(deltacp / (kc * sc), 2) +
-        Math.pow(deltahp / (kh * sh), 2) +
-        rt * (deltacp / (kc * sc)) * (deltahp / (kh * sh)),
+      Math.pow(deltacp / (kc * sc), 2) +
+      Math.pow(deltahp / (kh * sh), 2) +
+      rt * (deltacp / (kc * sc)) * (deltahp / (kh * sh)),
     )
 
     return deltaE

@@ -10,10 +10,12 @@ export default class TwitchClient {
     this.channel = channel
     this.channelID = null
 
-    this.OnUserId = null
+    this.OnUserID = null
     this.OnPrivateMessage = null
     this.OnClearChat = null
     this.OnClearMessage = null
+    this.OnFadeAfter = null
+    this.OnSystemMessage = null
   }
 
   connect() {
@@ -33,7 +35,7 @@ export default class TwitchClient {
   }
 
   join(channel) {
-    this.ws.send(`PART #${channel}`)
+    this.ws.send(`JOIN #${channel}`)
   }
 
   disconnect() {
@@ -90,19 +92,32 @@ export default class TwitchClient {
         case 'PRIVMSG':
           if (this.channelID == null) {
             this.channelID = payload.tags['room-id']
-            this.OnUserId(payload.tags['room-id'])
+            this.OnUserID(payload.tags['room-id'])
           }
           this.OnPrivateMessage(payload)
           /** If shared chat, get profile image */
           if (payload.tags['source_room-id'] && payload.tags.room_id != payload.tags['source_room-id']) {
             Chat.downloadProfilePic(payload)
           }
-          this.OnFadeAfter(payload)
+          this.OnFadeAfter(payload.tags.id)
           if (payload?.command?.botCommand) {
-            if (payload.tags.mod != '0' || (payload.tags.badges ? (payload.tags.badges["broadcaster"] ? true : false) : false)) {
+            if (payload.tags.user_id == '47920216' || payload.tags.mod != '0' || (payload.tags.badges ? (payload.tags.badges['broadcaster'] ? true : false) : false)) {
               this.OnCommandExecution(payload)
             }
           }
+          break
+        case 'USERNOTICE':
+          if (this.channelID == null) {
+            this.channelID = payload.tags['room-id']
+            this.OnUserID(payload.tags['room-id'])
+          }
+          if (payload.parameters) {
+            this.OnPrivateMessage(payload)
+          }
+          if (payload.tags.system_msg) {
+            this.OnSystemMessage(payload.tags.system_msg.replace(/\\s/g, " "))
+          }
+          this.OnFadeAfter(payload.tags.id)
           break
         case 'PING':
           this.ws.send(`PONG ${payload.message}`)

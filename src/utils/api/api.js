@@ -60,7 +60,5 @@ export default class API {
     this.ffzChannelbadges = await this.FFZ.getFfzChannelBadges(this.twitch.channel)
     this.bttvbadges = await this.BTTV.getBttvBadges(this.twitch.userID)
     this.chatterinobadges = await this.Chatterino.getChatterinoBadges()
-
-    // console.log("Fetched Third Party Data.")
   }
 }

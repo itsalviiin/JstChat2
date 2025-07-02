@@ -18,15 +18,13 @@ export default {
 
       /** Shared Chat Badge */
       if (this.payload.tags["source_room-id"] && this.payload.tags.room_id != this.payload.tags["source_room-id"] && this.pageConfig.sharedChatBadge != 'off') {
-        if(this.pageConfig.sharedChatBadge == 'simple') {
+        if (this.pageConfig.sharedChatBadge == 'simple') {
           badges.push(this.ChatBadge[this.payload.tags["source_room-id"]])
-        } else if(this.pageConfig.sharedChatBadge == 'profile') {
+        } else if (this.pageConfig.sharedChatBadge == 'profile') {
           badges.push(Chat.getProfilePic(this.payload.tags["source_room-id"]))
         }
-      } else if(this.payload.tags["source_room-id"] && this.payload.tags.room_id == this.payload.tags["source_room-id"] && this.pageConfig.sharedChatBadge == 'profile' && this.pageConfig.selfSharedBadge == 'true') {
-        console.log("THIS IS OWN CHAT MESSAGE")
-        console.log(this.api.twitch.profileImg)
-        if(this.api.twitch.profileImg) {
+      } else if (this.payload.tags["source_room-id"] && this.payload.tags.room_id == this.payload.tags["source_room-id"] && this.pageConfig.sharedChatBadge == 'profile' && this.pageConfig.selfSharedBadge == 'true') {
+        if (this.api.twitch.profileImg) {
           badges.push(this.api.twitch.profileImg)
         }
       }
@@ -39,7 +37,7 @@ export default {
 
       if (this.api.chatterinobadges && this.pageConfig.hideChatterinoBadges == 'false') {
         for (const value of this.api.chatterinobadges) {
-          if(value.users.includes(this.payload.tags.user_id)) {
+          if (value.users.includes(this.payload.tags.user_id)) {
             badges.push(value.url)
           }
         }
@@ -70,7 +68,7 @@ export default {
         }
       }
 
-      if (this.api.stvbadges &&  this.pageConfig.hide7TVBadges == 'false') {
+      if (this.api.stvbadges && this.pageConfig.hide7TVBadges == 'false') {
         for (const value of this.api.stvbadges) {
           if (value.users.includes(this.payload.tags.user_id)) {
             badges.push(value.url)
@@ -84,29 +82,29 @@ export default {
       return `${Math.round(1.33 * this.pageConfig.fontSizeI + 7)}px`
     },
     Background() {
-      if(this.pageConfig.backgrounds == 'transparent') {
-        if(this.pageConfig.highlightedFirstMessages == 'true') {
+      if (this.pageConfig.background == 'transparent') {
+        if (this.pageConfig.highlightFirstMessages == 'true') {
           if (this.payload.tags.first_msg && this.payload.tags.first_msg == "1") {
             return `rgba(92, 125, 86, 0.4)`
           }
         }
-        if(this.pageConfig.highlightedPointMessages == 'true') {
+        if (this.pageConfig.highlightPointMessages == 'true') {
           if (this.payload.tags.msg_id && this.payload.tags.msg_id == "highlighted-message") {
             return `rgba(64, 121, 128, 0.4)`
           }
         }
       }
-      if(this.pageConfig.highlightedFirstMessages == 'true') {
-          if (this.payload.tags.first_msg && this.payload.tags.first_msg == "1") {
-            return `rgba(92, 125, 86, 1)`
-          }
+      if (this.pageConfig.highlightFirstMessages == 'true') {
+        if (this.payload.tags.first_msg && this.payload.tags.first_msg == "1") {
+          return `rgba(92, 125, 86, 1)`
         }
-        if(this.pageConfig.highlightedPointMessages == 'true') {
-          if (this.payload.tags.msg_id && this.payload.tags.msg_id == "highlighted-message") {
-            return `rgba(64, 121, 128, 1)`
-          }
+      }
+      if (this.pageConfig.highlightPointMessages == 'true') {
+        if (this.payload.tags.msg_id && this.payload.tags.msg_id == "highlighted-message") {
+          return `rgba(64, 121, 128, 1)`
         }
-      return this.pageConfig.backgrounds[this.payload.background]
+      }
+      return this.payload.background
     },
     BackgroundOpacity() {
       if (this.payload.tags.first_msg && this.payload.tags.first_msg == "1") {
@@ -124,7 +122,7 @@ export default {
     },
     Bits() {
       if (this.payload.tags.bits) {
-        return Common.parse_bits(this.payload.parameters, this.payload.tags.bits ,this.api.twitch.emotePrefix)
+        return Common.parse_bits(this.payload.parameters, this.payload.tags.bits, this.api.twitch.emotePrefix)
       }
       return {}
     },
@@ -135,7 +133,10 @@ export default {
       return `calc(1.5em + ${this.pageConfig.emoteSizeI}px)`
     },
     Border() {
-      return `${this.pageConfig.border}px solid black`
+      if (this.pageConfig.border == 'true') {
+        return `2px solid black`
+      }
+      return `none`
     },
     SlashMe() {
       if (this.payload.action == true) {
@@ -165,33 +166,21 @@ export default {
 
 <template>
   <div id="message">
-    <Badge
-      v-for="(badge, pos) in Badges"
-      :key="pos"
-      :url="badge"
-      :pageConfig="pageConfig" />
+    <Badge v-for="(badge, pos) in Badges" :key="pos" :url="badge" :pageConfig="pageConfig" />
 
     <Nickname
-      :nick="payload.tags.display_name.toLowerCase().replace(`\\s`, ``).trim() === payload.source.nick ? payload.tags.display_name.replace(`\\s`, ``) : `${payload.source.nick}(${payload.tags.display_name.replace(`\\s`, ``)})`"
-      :color="UserColor"
-      :pageConfig="pageConfig"
-      :Background="Background"
-      :Paints="api.paints"
-      :userid="payload.tags.user_id"
-      :action="ActionUsername" />
+      :nick="payload.tags.display_name.toLowerCase().replace(`\\s`, ``).trim() === payload.source.nick || payload.source.nick == null ? payload.tags.display_name.replace(`\\s`, ``) : `${payload.source.nick}(${payload.tags.display_name.replace(`\\s`, ``)})`"
+      :color="UserColor" :pageConfig="pageConfig" :Background="Background" :Paints="api.paints"
+      :userid="payload.tags.user_id" :action="ActionUsername" />
 
-    <span
-      id="content"
-      v-emotes="{
-        emotes: {
-          twitch: TwitchEmotes,
-          ext: api.emotes,
-          personal: pageConfig.hidePersonalEmotes == 'false' ? api.personalEmotes[payload.tags.user_id] : undefined,
-        },
-        scale: pageConfig.emoteSizeI,
-      }"
-      v-bits="Bits"
-      >
+    <span id="content" v-emotes="{
+      emotes: {
+        twitch: TwitchEmotes,
+        ext: api.emotes,
+        personal: pageConfig.hidePersonalEmotes == 'false' ? api.personalEmotes[payload.tags.user_id] : undefined,
+      },
+      scale: pageConfig.emoteSizeI,
+    }" v-bits="Bits">
       {{ payload.parameters.replace(/\s\s+/g, " ") }}
     </span>
   </div>
@@ -202,10 +191,13 @@ export default {
   border-top: v-bind(Border);
   color: v-bind('SlashMe');
   background-color: v-bind('Background');
+  padding-left: 5px;
   padding-top: 3px;
   padding-bottom: 3px;
-  padding-left: 5px;
   line-height: 1.5em;
+  /* align-content: center;
+  min-height: 64px;
+  line-height: 64px; */
 }
 
 /* #content {
@@ -222,9 +214,9 @@ export default {
 }
 
 .zero-width-emote-container {
-    display: inline-flex;
-    align-items: flex-end;
-    vertical-align: bottom;
+  display: inline-flex;
+  align-items: flex-end;
+  vertical-align: bottom;
 }
 
 #content img[zerowidth="true"] {
@@ -234,5 +226,4 @@ export default {
 #content .emoji {
   max-height: v-bind('EmojiSize');
 }
-
 </style>

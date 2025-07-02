@@ -31,7 +31,7 @@ export default class TwitchAPI {
         badges[value['set_id']] = finalVersions
       }
 
-      /** add channel specific badges (bits etc.) */
+      /** Add channel specific badges (bits etc.) */
       let channelRequest = await fetch(`https://api.ivr.fi/v2/twitch/badges/channel?id=${user_id}`)
       if (channelRequest.ok) {
         json = await channelRequest.json()
