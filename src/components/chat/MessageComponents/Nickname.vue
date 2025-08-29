@@ -90,12 +90,13 @@ export default {
 }
 
 .nickname[HavePaints='true'] {
-  -webkit-text-fill-color: transparent;
-  -webkit-background-clip: text;
-  background-size: cover;
-  background-clip: text !important;
-  background-color: currentcolor;
   background-image: v-bind('bgImage');
+  background-size: cover;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-color: currentcolor;
   text-shadow: none !important;
+  -webkit-text-stroke: 0px;
 }
 </style>

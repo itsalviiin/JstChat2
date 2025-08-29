@@ -200,7 +200,7 @@ export default {
   line-height: 64px; */
 }
 
-/* #content {
+/* #message {
   -webkit-text-stroke: 0.2em black;
   paint-order: stroke fill;
 } */
@@ -209,9 +209,9 @@ export default {
   vertical-align: middle;
 }
 
-#content img {
+/* #content img {
   vertical-align: middle;
-}
+} */
 
 .zero-width-emote-container {
   display: inline-flex;
@@ -224,6 +224,8 @@ export default {
 }
 
 #content .emoji {
-  max-height: v-bind('EmojiSize');
+  /* max-height: v-bind('EmojiSize'); */
+  max-height: 1.3em;
+  vertical-align: middle;
 }
 </style>

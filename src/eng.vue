@@ -129,10 +129,7 @@
           <img class="badges" src="https://static-cdn.jtvnw.net/badges/v1/2de71f4f-b152-4308-a426-127a4cf8003a/2" />
           <span class="nickname_example" type="elis">elis: </span>
           <span id="content_example">
-            do this
-            <img class="emote" src="https://cdn.7tv.app/emote/01JTJPT7PDCEDEH59BMP6PGFN5/2x.webp" /> <img class="emote"
-              src="https://cdn.7tv.app/emote/01JTJPT7PDCEDEH59BMP6PGFN5/2x.webp" /> <img class="emote"
-              src="https://cdn.7tv.app/emote/01JTJPT7PDCEDEH59BMP6PGFN5/2x.webp" />
+            <img src="https://cdn.7tv.app/emote/01HS0YC6PR00053R068FSDQXNG/2x.webp" />
           </span>
         </div>
         <div id="message_example" v-bind:style="{ borderTop: Border }">
@@ -162,17 +159,34 @@
         <div id="message_example" v-bind:style="{ borderTop: Border, backgroundColor: RedeemedMessage }">
           <img class="badges" src="https://static-cdn.jtvnw.net/badges/v1/d12a2e27-16f6-41d0-ab77-b780518f00a3/2" />
           <img class="badges" src="https://cdn.frankerfacez.com/badge/3/2/rounded" />
-          <img class="badges" src="https://cdn.7tv.app/badge/01GJGS2XY00002GRV318PGDRKV/2x.webp" />
-          <span class="nickname_example" type="deme">deme: </span>
+          <img class="badges" src="https://cdn.7tv.app/badge/01H85EF8DR00020G66EN3RFP9G/2x.webp" />
+          <span class="nickname_example" type="emiru">Emiru: </span>
           <span id="content_example">
-            <img src="https://cdn.7tv.app/emote/01HS0YC6PR00053R068FSDQXNG/2x.webp" />
+            <div class="emote">
+              <span class="zero-width-emote-container" style="justify-content: center;">
+                <img class="emote" src="https://cdn.7tv.app/emote/01H0VA5M70000AHHWDRHKKDYW1/2x.webp"
+                  style="z-index: -1;" zerowidth="true">
+                <img class="emote" src="https://cdn.7tv.app/emote/01JXRRCWWK074S15RFEEBX66HP/2x.webp" zerowidth="false">
+              </span>
+            </div>
           </span>
+          <!-- <span id="content_example">
+            <img src="https://cdn.7tv.app/emote/01H0VA5M70000AHHWDRHKKDYW1/2x.webp" />
+          </span> -->
         </div>
       </div>
     </div>
     <br>
     <div class="container">
       <div class="settings">
+        <div class="param">
+          <span class="setting-name tooltip">
+            <span class="tooltiptext">The total amount of messages to display</span>
+            Max Messages:
+          </span>
+          <input type="number" min="1" max="100" step="1" placeholder="50" v-model="max_messages" />
+        </div>
+
         <div class="param">
           <span class="setting-name tooltip">
             <span class="tooltiptext">For best results, just leave this at 0<br>• 0 is the default size<br>• Positive
@@ -202,7 +216,11 @@
         </div>
 
         <div class="param">
-          <span id="backgrounds">Background Color (HEX):</span>
+          <span id="backgrounds" class="tooltip">
+            <span class="tooltiptext">Makes the messages have a background color as the messages appear. If
+              you want a background that covers the area of the entire overlay, add a custom css in OBS</span>
+            Background Color (HEX):
+          </span>
           <input id="backgrounds" type="text" placeholder="#2E2E2E50" v-model="background" />
         </div>
         <!-- <div class="param">
@@ -211,7 +229,7 @@
         </div> -->
         <div class="param">
           <label class="setting-name" for="border">Border:</label>
-          <input id="border" type="checkbox" v-model="border" value="false" checked />
+          <input id="border" type="checkbox" v-model="border" value="true" checked />
         </div>
 
         <div class="param">
@@ -221,17 +239,17 @@
         </div>
 
         <div class="param">
-          <label class="setting-name tooltip" for="hide_animation">
+          <label class="setting-name tooltip" for="animate_message">
             <span class="tooltiptext">Chat messages are animated as they come in</span>
             Animate Chat Messages:
           </label>
-          <input id="hide_animation" type="checkbox" v-model="animate" value="true" checked />
+          <input id="animate_message" type="checkbox" v-model="animate" value="true" checked />
         </div>
 
         <div class="param">
           <span class="setting-name tooltip">
             <span class="tooltiptext">Messages get displayed in intervals, making messages more readable in fast
-              chats<br><br>• 0 seconds = New messages appear instantly; 1 second = New messages appear every 1
+              chats<br><br>• 0 seconds = New messages appear instantly<br>• 1 second = New messages appear every 1
               second</span>
             Message Display Interval:
           </span>
@@ -472,6 +490,7 @@ export default {
       custom_font: '',
       font_size: '36',
       font_weight: '800',
+      max_messages: '50',
       emote_size: '0',
       shadow: 'true',
 
@@ -521,6 +540,7 @@ export default {
       let font = this.font,
         font_size = '',
         font_weight = '',
+        max_messages = '',
         emote_size = '',
         shadow = '',
         bg = '',
@@ -556,11 +576,12 @@ export default {
 
       font_size = this.font_size != '36' ? `&font_size=${this.font_size}` : ``
       font_weight = this.font_weight != '800' ? `&font_weight=${this.font_weight}` : ``
+      max_messages = this.max_messages != '50' ? `&max_messages=${this.max_messages}` : ``
       emote_size = this.emote_size != '0' ? `&emote_size=${this.emote_size}` : ``
       shadow = this.shadow != 'true' ? `&shadow=${this.shadow}` : ``
       bg = this.background != 'transparent' ? `&background=${this.background[0] == "#" ? this.background.substring(1) : this.background}` : ``
       // nb = this.num_backgrounds != 0 ? `&sb=${this.num_backgrounds}` : ``
-      border = this.border != 'false' ? `&border=true` : ``
+      border = this.border != 'false' ? `&border=${this.border}` : ``
       fade = this.fade != '0' ? `&fade_after=${this.fade}` : ``
       animate = this.animate != 'false' ? `&animate=${this.animate}` : ``
       display_interval = parseFloat(this.display_interval) * 1000 != 200 ? `&display_interval=${parseFloat(this.display_interval) * 1000}` : ``
@@ -585,7 +606,7 @@ export default {
       ignore = this.ignore != '' ? `&hide=${this.ignore.replace(/\s+/g, '')}` : ``
       filter = this.filter_messages != '' ? `&filter=${encodeURIComponent(this.filter_messages)}` : ``
 
-      return `https://itsalviiin.github.io/JstChat2/#/chat?channel=${this.channel.toLowerCase()}&font=${encodeURIComponent(font)}${font_size}${font_weight}${emote_size}${shadow}${bg}${border}${fade}${animate}${display_interval}${readable_colors}${overlay_system_msg}${twitch_system_msg}${stv_system_msg}${highlight_first_time}${highlight_redeemed}${hide_personal}${hide_unlisted}${hide_private}${hide_paints}${hide_bttv_badge}${hide_ffz_badge}${hide_7tv_badge}${hide_chatterino_badge}${shared_chat_badge}${self_shared_badge}${hide_bots}${hide_commands}${ignore}${filter}`
+      return `https://itsalviiin.github.io/JstChat2/#/chat?channel=${this.channel.toLowerCase()}&font=${encodeURIComponent(font)}${font_size}${font_weight}${max_messages}${emote_size}${shadow}${bg}${border}${fade}${animate}${display_interval}${readable_colors}${overlay_system_msg}${twitch_system_msg}${stv_system_msg}${highlight_first_time}${highlight_redeemed}${hide_personal}${hide_unlisted}${hide_private}${hide_paints}${hide_bttv_badge}${hide_ffz_badge}${hide_7tv_badge}${hide_chatterino_badge}${shared_chat_badge}${self_shared_badge}${hide_bots}${hide_commands}${ignore}${filter}`
     },
     showBackgroundOptions() {
       if (this.show_bg_options == 'true') {
@@ -851,8 +872,9 @@ body {
 }
 
 #message_example {
-  padding-top: 4px;
-  padding-bottom: 4px;
+  line-height: 55px;
+  /* padding-top: 4px;
+  padding-bottom: 4px; */
   padding-left: 5px;
 }
 
@@ -903,15 +925,15 @@ body {
   color: #D1EF8D;
 }
 
-.nickname_example[type="deme"] {
+.nickname_example[type="emiru"] {
   background-size: cover;
   -webkit-text-fill-color: transparent;
   -webkit-background-clip: text;
   background-clip: text !important;
   background-color: currentcolor;
-  background-image: url("https://cdn.7tv.app/paint/01J5K5Y85000026B027ATG06TR/layer/01JAMR3873HAYY01X3QEPFMVVS/1x.webp");
-  filter: drop-shadow(rgb(255, 149, 0) 0px 0px 0.1px) drop-shadow(rgb(255, 149, 0) 0px 0px 4px);
-  color: #FF8C3F;
+  background-image: repeating-radial-gradient(circle, rgb(255, 255, 255) 17%, rgb(255, 255, 255) 19%, rgb(255, 184, 215) 34%);
+  filter: drop-shadow(rgb(255, 184, 242) 0px 0px 1px) drop-shadow(rgb(254, 144, 144) 1px 1px 0.5px) drop-shadow(rgb(106, 36, 36) 0.5px 0.5px 0.5px) drop-shadow(rgb(255, 148, 226) 0.5px 0.5px 0.3px);
+  color: #FF69B4;
 }
 
 .zero-width-emote-container {

@@ -79,6 +79,8 @@ export default {
         highlightPointMessages: this.$route.query.highlight_redeemed || 'false',
 
         /** Emotes & Cosmetics */
+        hideSubMessages: this.$route.query.hide_sub_messages || 'false',
+        hideBitMessages: this.$route.query.hide_bit_messages || 'false',
         hidePersonalEmotes: this.$route.query.hide_personal || 'false',
         hideUnlistedEmotes: this.$route.query.hide_unlisted || 'false',
         hidePrivateEmotes: this.$route.query.hide_private || 'false',
@@ -186,20 +188,6 @@ export default {
       }
     },
     createTwitchMessage(message) {
-      if (this.messages.length >= this.pageConfig.maxMes) {
-        this.messages.shift()
-      }
-      message.type = 'twitch'
-
-      message.background = `#${this.pageConfig.background}`
-
-      // message.background = this.useBG
-      // if (this.useBG + 1 > this.pageConfig.backgrounds.length - 1) {
-      //   this.useBG = 0
-      // } else {
-      //   this.useBG += 1
-      // }
-
       if (this.pageConfig.hideBots == 'true') {
         if (this.botsList.includes(message.tags.user_id)) {
           return
@@ -207,7 +195,7 @@ export default {
       }
 
       /** Remove when messages start with a command */
-      if (this.pageConfig.hideCommands.toLowerCase() === 'true') {
+      if (this.pageConfig.hideCommands.toLowerCase() == 'true') {
         if (
           message.parameters.startsWith('!')
         ) {
@@ -216,7 +204,7 @@ export default {
       }
 
       /** Remove users in the ignore list */
-      if (this.pageConfig.hideUsers.length !== 0) {
+      if (this.pageConfig.hideUsers.length != 0) {
         if (this.pageConfig.hideUsers.includes(message.source.nick)) {
           return
         }
@@ -229,10 +217,29 @@ export default {
         }
       }
 
+      if (this.pageConfig.hideSubMessages == 'true') {
+        if (message.command.command == 'USERNOTICE') {
+          return
+        }
+      }
+
+      if (this.pageConfig.hideBitMessages == 'true') {
+        if (message.tags.bits) {
+          return
+        }
+      }
+
       /** If overlay is paused, don't add messages */
       if (this.pauseOverlay) {
         return
       }
+
+      if (this.messages.length >= this.pageConfig.maxMes) {
+        this.messages.shift()
+      }
+      message.type = 'twitch'
+
+      message.background = `#${this.pageConfig.background}`
 
       if (this.pageConfig.displayInterval != 0) {
         this.temp.push(message)
@@ -254,12 +261,6 @@ export default {
       sysMsg.type = 'system'
 
       sysMsg.background = `#${this.pageConfig.background}`
-      // sysMsg.background = this.useBG
-      // if (this.useBG + 1 > this.pageConfig.backgrounds.length - 1) {
-      //   this.useBG = 0
-      // } else {
-      //   this.useBG += 1
-      // }
 
       if (this.pageConfig.displayInterval != 0) {
         this.temp.push(sysMsg)
@@ -295,29 +296,6 @@ export default {
     },
   },
   created: async function () {
-    // if (
-    //   this.pageConfig.calcSecondBackgrounds > 0 &&
-    //   this.pageConfig.backgrounds != 'transparent'
-    // ) {
-    //   for (let index = 0; index < this.pageConfig.calcSecondBackgrounds; index++) {
-    //     let minus = 1
-    //     let ind = index
-
-    //     if (this.pageConfig.calcSecondBackgrounds / 2 <= index) {
-    //       ind = this.pageConfig.calcSecondBackgrounds - index - 1
-    //     }
-
-    //     let gray = Common.toGray(this.pageConfig.backgrounds[ind])
-    //     if (gray > 0.38) {
-    //       minus = -30 / gray
-    //     }
-
-    //     this.pageConfig.backgrounds.push(
-    //       Common.pSBC(0.01 * minus, this.pageConfig.backgrounds[ind]),
-    //     )
-    //   }
-    // }
-
     if (this.pageConfig.filter != '') {
       this.filterRegex = new RegExp(this.pageConfig.filter, "i")
     }
@@ -356,6 +334,9 @@ export default {
       if (payload.parameters == null) {
         this.messages = []
       } else {
+        if (this.pageConfig.displayInterval != 0) {
+          this.temp = this.temp.filter((item) => item.source.nick !== payload.parameters)
+        }
         this.messages = this.messages.filter((item) => item.source.nick !== payload.parameters)
       }
     }
@@ -368,8 +349,8 @@ export default {
         case "reloadoverlay":
           window.location.reload()
           break
-        case "reloademotes":
         case "refreshemotes":
+        case "reloademotes":
           this.api.fetchEmotes(this.pageConfig.hideUnlistedEmotes, this.pageConfig.hidePrivateEmotes)
           if (this.pageConfig.stvSysMsg == 'true') {
             this.createSystemMessage('Emotes have been reloaded.')
@@ -426,7 +407,7 @@ export default {
     },
     shadow() {
       if (this.pageConfig.shadow == 'true') {
-        return `drop-shadow(3px 3px 1.5px black)`
+        return `drop-shadow(3px 3px 0.1rem black)`
       }
       return `none`
     }
@@ -437,11 +418,7 @@ export default {
         if (this.temp.length > 0) {
           this.messages.push(...this.temp);
         }
-        let linesToDelete = this.messages.length - 50
-        while (linesToDelete > 0) {
-          this.messages.shift()
-          linesToDelete--
-        }
+        this.messages.splice(0, this.messages.length - this.pageConfig.maxMes)
         this.temp = []
       }, this.pageConfig.displayInterval);
     }
@@ -452,6 +429,18 @@ export default {
 }
 </script>
 
+<!-- <template>
+  <TransitionGroup tag="div" name="chat" id="chat" appear :transparent="isTransparent" v-show="showOverlay">
+    <Message v-for="(item, i) in messages" :key="item.tags.id" :payload="item" :api="api" :pageConfig="pageConfig"
+      :pos="i" :class="{ fadeOut: item.fadeOut }" />
+  </TransitionGroup>
+</template> -->
+<!-- <template>
+  <TransitionGroup tag="div" name="fade" id="chat" :transparent="isTransparent" v-show="showOverlay">
+    <Message v-for="(item, i) in messages" :key="item.tags.id" :payload="item" :api="api" :pageConfig="pageConfig"
+      :pos="i" :class="{ fadeOut: item.fadeOut }" />
+  </TransitionGroup>
+</template> -->
 <template>
   <div id="chat" :transparent="isTransparent" v-show="showOverlay">
     <Message v-for="(item, i) in messages" :key="item.tags.id" :payload="item" :api="api" :pageConfig="pageConfig"
@@ -475,12 +464,12 @@ export default {
 @keyframes fadeInUp {
   from {
     transform: translate3d(0, 0.5em, 0);
-    opacity: 0.5;
+    /* opacity: 0.75; */
   }
 
   to {
     transform: translate3d(0, 0, 0);
-    opacity: 1;
+    /* opacity: 1; */
   }
 }
 
@@ -497,9 +486,92 @@ export default {
 #chat>div {
   animation: v-bind('animation');
   filter: v-bind('shadow');
+  /* filter: drop-shadow(0px 0px 0.3rem black); */
+  /* filter: drop-shadow(3px 3px 0.1rem black); */
+  /* filter: drop-shadow(3px 3px 1.5px black); */
 }
 
 #chat>div.fadeOut {
   animation: fadeOut 0.5s forwards;
 }
+
+.chat-enter-from {
+  opacity: 0;
+}
+
+.chat-enter-to {
+  opacity: 1;
+}
+
+.chat-enter-active {
+  transition: opacity 0s linear 150ms;
+  /* Adjust duration as needed */
+  /* transition-delay: 0.2s; */
+  /* Delay the new message's entrance */
+}
+
+.chat-move {
+  transition: transform 150ms linear;
+  /* Smoothly move existing messages up */
+}
+
+/* .chat-enter-active {
+  transition: opacity 0s linear 0.2s;
+}
+
+.chat-enter-from {
+  opacity: 0;
+}
+
+.chat-enter-to {
+  opacity: 1;
+}
+
+.chat-move {
+  transition: transform 0.15s linear;
+}
+
+#chat>* {
+  will-change: transform;
+} */
+
+/* .chat-enter-active {
+  transition: transform 0.15s ease;
+}
+
+.chat-enter-from {
+  transform: translateY(75%);
+  opacity: 0;
+}
+
+.chat-enter-to {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.chat-move {
+  transition: transform 0.15s ease;
+} */
+
+/* 1. declare transition */
+/* .fade-move,
+.fade-enter-active,
+.fade-leave-active {
+  transition: all 0.5s cubic-bezier(0.55, 0, 0.1, 1);
+} */
+
+/* 2. declare enter from and leave to state */
+/* .fade-enter-from,
+.fade-leave-to {
+  animation: v-bind('animation');
+} */
+/* opacity: 0.5; */
+/* transform: scaleY(0.01) translate(30px, 0); */
+/* transform: scaleY(0.01) translate(30px, 0); */
+
+/* 3. ensure leaving items are taken out of layout flow so that moving
+      animations can be calculated correctly. */
+/* .fade-leave-active {
+  position: absolute;
+} */
 </style>
