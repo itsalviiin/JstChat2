@@ -429,18 +429,6 @@ export default {
 }
 </script>
 
-<!-- <template>
-  <TransitionGroup tag="div" name="chat" id="chat" appear :transparent="isTransparent" v-show="showOverlay">
-    <Message v-for="(item, i) in messages" :key="item.tags.id" :payload="item" :api="api" :pageConfig="pageConfig"
-      :pos="i" :class="{ fadeOut: item.fadeOut }" />
-  </TransitionGroup>
-</template> -->
-<!-- <template>
-  <TransitionGroup tag="div" name="fade" id="chat" :transparent="isTransparent" v-show="showOverlay">
-    <Message v-for="(item, i) in messages" :key="item.tags.id" :payload="item" :api="api" :pageConfig="pageConfig"
-      :pos="i" :class="{ fadeOut: item.fadeOut }" />
-  </TransitionGroup>
-</template> -->
 <template>
   <div id="chat" :transparent="isTransparent" v-show="showOverlay">
     <Message v-for="(item, i) in messages" :key="item.tags.id" :payload="item" :api="api" :pageConfig="pageConfig"
@@ -486,9 +474,6 @@ export default {
 #chat>div {
   animation: v-bind('animation');
   filter: v-bind('shadow');
-  /* filter: drop-shadow(0px 0px 0.3rem black); */
-  /* filter: drop-shadow(3px 3px 0.1rem black); */
-  /* filter: drop-shadow(3px 3px 1.5px black); */
 }
 
 #chat>div.fadeOut {
