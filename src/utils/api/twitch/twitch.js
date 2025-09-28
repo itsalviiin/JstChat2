@@ -11,41 +11,13 @@ export default class TwitchAPI {
     let userInfo = await this.getUserID(this.channel)
     this.userID = userInfo.id
     this.emotePrefix = userInfo.isPartner ? userInfo.prefix : null
-    this.badges = await this.getGlobalBadges(this.userID)
-    this.badges['subscriber'] = await this.getSubscriberBadges(this.userID)
+    this.badges = await this.getBadges(this.userID, this.channel)
     this.profileImg = userInfo.profile
   }
 
-  async getGlobalBadges(user_id) {
+  async getBadges(user_id, channel) {
     let badges = {}
     try {
-      // let response = await fetch('https://api.spanix.team/global_badges/')
-      // if (response.ok) {
-      //   let json = await response.json()
-      //   for (const value of json.badges) {
-      //     if (!Object.keys(badges).includes(value['setID'])) {
-      //       badges[value["setID"]] = {}
-      //     }
-      //     badges[value["setID"]][value["version"]] = value['image_url_2x']
-      //   }
-
-      //   /** Add channel specific badges (bits etc.) */
-      //   let channelRequest = await fetch(`https://api.spanix.team/get_info/${user_id}`)
-      //   if (channelRequest.ok) {
-      //     json = await channelRequest.json()
-      //     for (const value of json.user.broadcastBadges) {
-      //       if (value['setID'] != 'subscriber') {
-      //         if (!Object.keys(badges).includes(value['setID'])) {
-      //           badges[value["setID"]] = {}
-      //         }
-      //         badges[value["setID"]][value["version"]] = value['image_url_2x']
-      //       }
-      //     }
-
-      //     return badges
-      //   }
-      // }
-
       let response = await fetch('https://api.ivr.fi/v2/twitch/badges/global')
       if (response.ok) {
         let json = await response.json()
@@ -63,21 +35,47 @@ export default class TwitchAPI {
         if (channelRequest.ok) {
           json = await channelRequest.json()
           for (const value of json) {
-            if (value['set_id'] != 'subscriber') {
-              let vers = value['versions']
-              let finalVersions = {}
-              for (const value of vers) {
-                finalVersions[value['id']] = value['image_url_2x']
+            let vers = value['versions']
+            let finalVersions = {}
+            for (const value of vers) {
+              finalVersions[value['id']] = value['image_url_2x']
+            }
+            badges[value['set_id']] = finalVersions
+          }
+
+          return badges
+        }
+      }
+      return {}
+    } catch (e) {
+      console.log(e)
+      let response = await fetch('https://api.spanix.team/global_badges/', { signal: AbortSignal.timeout(5000) })
+      if (response.ok) {
+        let json = await response.json()
+        for (const value of json.badges) {
+          if (!Object.keys(badges).includes(value['setID'])) {
+            badges[value["setID"]] = {}
+          }
+          badges[value["setID"]][value["version"]] = value['image_url_2x']
+        }
+
+        /** Add channel specific badges (bits etc.) */
+        let channelRequest = await fetch(`https://api.spanix.team/get_info/${channel}`)
+        if (channelRequest.ok) {
+          json = await channelRequest.json()
+          console.log(json)
+          for (const value of json.user.broadcastBadges) {
+            if (value['setID'] != 'subscriber') {
+              if (!Object.keys(badges).includes(value['setID'])) {
+                badges[value["setID"]] = {}
               }
-              badges[value['set_id']] = finalVersions
+              badges[value["setID"]][value["version"]] = value['image_url_2x']
             }
           }
 
           return badges
         }
       }
-    } catch (e) {
-      console.log(e)
     }
     return {}
   }
@@ -93,28 +91,5 @@ export default class TwitchAPI {
       }
     }
     throw 'Unable to get user id from ivr API!'
-  }
-  async getSubscriberBadges(user_id) {
-    let subscriber = {}
-
-    const response = await fetch(`https://api.ivr.fi/v2/twitch/badges/channel?id=${user_id}`)
-    const json = await response.json()
-    if (response.ok && json.length > 0) {
-      for (const obj of json) {
-        if (obj['set_id'] == 'subscriber') {
-          let vers = obj['versions']
-          let finalVersions = {}
-          for (const value of vers) {
-            finalVersions[value['id']] = value['image_url_2x']
-          }
-          subscriber = finalVersions
-          return subscriber
-        }
-      }
-    }
-    if (response.status != 404 && json.length > 0) {
-      throw 'not loaded'
-    }
-    return {}
   }
 }

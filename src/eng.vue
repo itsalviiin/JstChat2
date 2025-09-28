@@ -141,8 +141,9 @@
               <img class="emote" src="https://cdn.7tv.app/emote/01HNEKZY4G0001XDKW9GFY7KKV/2x.webp" style="z-index: -1;"
                 zerowidth="true">
               <img class="emote" src="https://cdn.7tv.app/emote/01GGRX0GNR0005JFNK2VC9HTVR/2x.webp" zerowidth="false">
-            </span> <img id="bits" src="https://d3aqoihi2n8ty8.cloudfront.net/actions/cheer/dark/animated/100/2.gif" />
-            <span id="bits"> 100 </span>
+            </span> <img id="bits_example"
+              src="https://d3aqoihi2n8ty8.cloudfront.net/actions/cheer/dark/animated/100/2.gif" />
+            <span id="bits_example"> 100 </span>
             it's cool I guess
           </span>
         </div>
@@ -218,7 +219,7 @@
         <div class="param">
           <span id="backgrounds" class="tooltip">
             <span class="tooltiptext">Makes the messages have a background color as the messages appear. If
-              you want a background that covers the area of the entire overlay, add a custom css in OBS</span>
+              you want a background that covers the area of the entire overlay, add a custom css in OBS instead</span>
             Background Color (HEX):
           </span>
           <input id="backgrounds" type="text" placeholder="#2E2E2E50" v-model="background" />
@@ -859,7 +860,7 @@ body {
   font-size: 2em;
 }
 
-#bits {
+#bits_example {
   color: #9C3EE8;
 }
 

@@ -78,9 +78,9 @@ export default {
 
       return badges
     },
-    MessageSize() {
-      return `${Math.round(1.33 * this.pageConfig.fontSizeI + 7)}px`
-    },
+    // MessageSize() {
+    //   return `${Math.round(1.33 * this.pageConfig.fontSizeI + 7)}px`
+    // },
     Background() {
       if (this.pageConfig.background == 'transparent') {
         if (this.pageConfig.highlightFirstMessages == 'true') {
@@ -207,6 +207,10 @@ export default {
 
 #content .emote {
   vertical-align: middle;
+  /* max-height: 48px; */
+  /* height: 48px; */
+  /* min-height: 48px; */
+  max-height: 60px;
 }
 
 /* #content img {

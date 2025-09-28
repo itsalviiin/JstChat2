@@ -116,7 +116,7 @@ export default {
     async onEmoteDelete(e) {
       delete this.api.emotes[e.old_value.name]
       if (this.pageConfig.stvSysMsg == 'true') {
-        this.createSystemMessage(`[7TV] Removed ${e.value.name}`)
+        this.createSystemMessage(`[7TV] Removed ${e.old_value.name}`)
       }
     },
     async onEmoteRename(e) {
@@ -171,7 +171,7 @@ export default {
         this.api.personalEmotes[user] = e
       }
     },
-    async OnFadeAfter(id) {
+    async onFadeAfter(id) {
       if (this.pageConfig.fade != 0) {
         setTimeout(
           () => {
@@ -246,7 +246,7 @@ export default {
       } else {
         this.messages.push(message)
       }
-      this.OnFadeAfter(message.tags.id)
+      this.onFadeAfter(message.tags.id)
     },
     async createSystemMessage(message) {
       if (this.messages.length >= this.pageConfig.maxMes) {
@@ -267,7 +267,7 @@ export default {
       } else {
         this.messages.push(sysMsg)
       }
-      this.OnFadeAfter(sysMsg.tags.id)
+      this.onFadeAfter(sysMsg.tags.id)
       this.systemMsgID++
     },
     createTwitchUsernoticeMessage(message) {
@@ -290,7 +290,7 @@ export default {
         } else {
           this.messages.push(sysMsg)
         }
-        this.OnFadeAfter(sysMsg.tags.id)
+        this.onFadeAfter(sysMsg.tags.id)
         this.systemMsgID++
       }
     },
@@ -305,26 +305,15 @@ export default {
 
     await this.api.fetchEmotes(this.pageConfig.hideUnlistedEmotes, this.pageConfig.hidePrivateEmotes)
 
-    /** Connecting to 7TV EventAPI */
-    this.EventAPI = new EventAPI(this.api.seventv_id, this.api.twitch.userID)
-
-    this.EventAPI.onDelete = this.onEmoteDelete
-    this.EventAPI.onRename = this.onEmoteRename
-    this.EventAPI.onAdd = this.onEmoteAdd
-
-    this.EventAPI.onBadgeCreate = this.onBadgeCreate
-    this.EventAPI.onBadgeDelete = this.onBadgeDelete
-    this.EventAPI.onPaintCreate = this.onPaintCreate
-    this.EventAPI.onPaintDelete = this.onPaintDelete
-
-    this.EventAPI.onPersonalEmotes = this.onPersonalEmotes
-
-    this.EventAPI.Connect()
-
     this.client = new TwitchClient(this.pageConfig.channel)
+    this.client.connect()
+    if (this.pageConfig.overlaySysMsg == 'true') {
+      this.createSystemMessage(`Connected to #${this.pageConfig.channel}!`)
+    }
+
     this.client.OnPrivateMessage = this.createTwitchMessage
     this.client.OnSystemMessage = this.createTwitchUsernoticeMessage
-    this.client.OnFadeAfter = this.OnFadeAfter
+    this.client.OnFadeAfter = this.onFadeAfter
     this.client.OnUserID = (id) => {
       if (this.userID == null) {
         this.userID = id
@@ -381,10 +370,22 @@ export default {
           break
       }
     }
-    this.client.connect()
-    if (this.pageConfig.overlaySysMsg == 'true') {
-      this.createSystemMessage(`Connected to #${this.pageConfig.channel}!`)
-    }
+
+    /** Connecting to 7TV EventAPI */
+    this.EventAPI = new EventAPI(this.api.seventv_id, this.api.twitch.userID)
+
+    this.EventAPI.onDelete = this.onEmoteDelete
+    this.EventAPI.onRename = this.onEmoteRename
+    this.EventAPI.onAdd = this.onEmoteAdd
+
+    this.EventAPI.onBadgeCreate = this.onBadgeCreate
+    this.EventAPI.onBadgeDelete = this.onBadgeDelete
+    this.EventAPI.onPaintCreate = this.onPaintCreate
+    this.EventAPI.onPaintDelete = this.onPaintDelete
+
+    this.EventAPI.onPersonalEmotes = this.onPersonalEmotes
+
+    this.EventAPI.Connect()
   },
   computed: {
     fontSize() {
@@ -452,7 +453,7 @@ export default {
 @keyframes fadeInUp {
   from {
     transform: translate3d(0, 0.5em, 0);
-    /* opacity: 0.75; */
+    /* opacity: 0.5; */
   }
 
   to {
@@ -498,6 +499,10 @@ export default {
 .chat-move {
   transition: transform 150ms linear;
   /* Smoothly move existing messages up */
+}
+
+img#bits {
+  vertical-align: sub;
 }
 
 /* .chat-enter-active {
