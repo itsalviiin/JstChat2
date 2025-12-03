@@ -67,7 +67,6 @@ export default class TwitchClient {
   }
 
   async onOpen() {
-    console.log('Connecting...')
     this.IsDisconnected = false
     this.ws.send('NICK justinfan1337')
     this.ws.send('JOIN #' + this.channel.toLowerCase())

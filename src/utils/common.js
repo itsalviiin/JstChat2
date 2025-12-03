@@ -41,7 +41,7 @@ var Common = {
     for (const key of text.split(' ')) {
       let m = key.trim()
       if (m == '') continue
-      r.push({ Type: 'text', Text: m + ' ' })
+      r.push({ type: 'text', Text: m + ' ' })
     }
     return r
   },
@@ -310,8 +310,8 @@ var Common = {
       emote = emote.split(' ')[0]
       if (!(emote in result)) {
         result[emote] = {
-          ID: i,
-          Type: 'Twitch',
+          id: i,
+          type: 'Twitch',
           width: 56,
           height: 56
         }

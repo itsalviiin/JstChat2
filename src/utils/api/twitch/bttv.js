@@ -8,8 +8,8 @@ export default {
         if (json.sharedEmotes) {
           for (const value of json.sharedEmotes) {
             emotes[value.code] = {
-              ID: value.id,
-              Type: 'BTTV',
+              id: value.id,
+              type: 'BTTV',
               width: value.width ? value.width * 2 : 56,
               height: value.height ? value.height * 2 : 56
             }
@@ -18,8 +18,8 @@ export default {
         if (json.channelEmotes) {
           for (const value of json.channelEmotes) {
             emotes[value.code] = {
-              ID: value.id,
-              Type: 'BTTV',
+              id: value.id,
+              type: 'BTTV',
               width: value.width ? value.width * 2 : 56,
               height: value.height ? value.width * 2 : 56
             }
@@ -45,9 +45,9 @@ export default {
         const json = await response.json()
         for (const value of json) {
           emotes[value.code] = {
-            ID: value.id,
-            Type: 'BTTV',
-            ZeroWidth: value.id == '567b5b520e984428652809b6'   // SoSnowy
+            id: value.id,
+            type: 'BTTV',
+            zeroWidth: value.id == '567b5b520e984428652809b6'   // SoSnowy
               || value.id == '567b5c080e984428652809ba'         // CandyCane
               || value.id == '567b5dc00e984428652809bd'         // ReinDeer
               || value.id == '58487cc6f52be01a7ee5f205'         // SantaHat

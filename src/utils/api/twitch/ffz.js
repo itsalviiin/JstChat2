@@ -10,8 +10,8 @@ export default {
         const json = await response.json()
         for (const value of json.sets[json.room.set.toString()].emoticons) {
           emotes[value.name] = {
-            ID: value.id,
-            Type: 'FFZ',
+            id: value.id,
+            type: 'FFZ',
             animated: 'animated' in value,
             width: value.width * 2,
             height: value.height * 2
@@ -44,8 +44,8 @@ export default {
         const json = await response.json()
         for (const value of json.sets['3'].emoticons) {
           emotes[value.name] = {
-            ID: value.id,
-            Type: 'FFZ',
+            id: value.id,
+            type: 'FFZ',
             animated: 'animated' in value,
             width: value.width * 2,
             height: value.height * 2

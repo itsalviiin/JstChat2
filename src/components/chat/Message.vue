@@ -179,6 +179,11 @@ export default {
         ext: api.emotes,
         personal: pageConfig.hidePersonalEmotes == 'false' ? api.personalEmotes[payload.tags.user_id] : undefined,
       },
+      settings: {
+        personal: pageConfig.hidePersonalEmotes == 'false' ? false : true,
+        unlisted: pageConfig.hideUnlistedEmotes == 'false' ? false : true,
+        private: pageConfig.hidePrivateEmotes == 'false' ? false : true,
+      },
       scale: pageConfig.emoteSizeI,
     }" v-bits="Bits">
       {{ payload.parameters.replace(/\s\s+/g, " ") }}
@@ -195,9 +200,13 @@ export default {
   padding-top: 3px;
   padding-bottom: 3px;
   line-height: 1.5em;
+  align-content: center;
+  /* line-height: 55px; */
+  /* min-height: 75px; */
   /* align-content: center;
-  min-height: 64px;
-  line-height: 64px; */
+  min-height: 75px;
+  line-height: 75px; */
+  /* line-height: 75px; */
 }
 
 /* #message {

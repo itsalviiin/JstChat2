@@ -52,7 +52,7 @@ export default {
         maxMes: this.$route.query.max_messages || 50,
         channel: this.$route.query.channel,
         fontName: this.$route.query.font || 'Roboto',
-        fontWeight: parseInt(this.$route.query.font_weight || '800'),
+        fontWeight: parseInt(this.$route.query.font_weight || '700'),
 
         fontSizeI: parseInt(this.$route.query.font_size || '36'),
         emoteSizeI: parseInt(this.$route.query.emote_size || '0'),
@@ -79,6 +79,7 @@ export default {
         highlightPointMessages: this.$route.query.highlight_redeemed || 'false',
 
         /** Emotes & Cosmetics */
+        auto_reload: this.$route.query.auto_reload || 'true',
         hideSubMessages: this.$route.query.hide_sub_messages || 'false',
         hideBitMessages: this.$route.query.hide_bit_messages || 'false',
         hidePersonalEmotes: this.$route.query.hide_personal || 'false',
@@ -103,9 +104,11 @@ export default {
   methods: {
     async onEmoteAdd(e) {
       this.api.emotes[e.value.name] = {
-        ID: e.value.id,
-        Type: '7TV',
+        id: e.value.id,
+        type: '7TV',
         ZeroWidth: e.value.flags == 1,
+        unlisted: !e.value.data.listed,
+        private: e.value.data.flags == 1,
         width: e.value.data.host.files[1].width,
         height: e.value.data.host.files[1].height,
       }
@@ -296,6 +299,8 @@ export default {
     },
   },
   created: async function () {
+    let start = Date.now()
+
     if (this.pageConfig.filter != '') {
       this.filterRegex = new RegExp(this.pageConfig.filter, "i")
     }
@@ -303,10 +308,18 @@ export default {
     this.api = new API(this.pageConfig.channel)
     await this.api.twitch.fetchData(this.api.fetchEmotes)
 
-    await this.api.fetchEmotes(this.pageConfig.hideUnlistedEmotes, this.pageConfig.hidePrivateEmotes)
+    await this.api.fetchEmotes()
+
+    if (this.pageConfig.auto_reload == 'true') {
+      setInterval(() => {
+        this.api.fetchEmotes()
+        console.log('[EMOTES] Auto-reloaded emotes')
+      }, 5 * 60 * 1000);
+    }
 
     this.client = new TwitchClient(this.pageConfig.channel)
     this.client.connect()
+    console.log(`[TWITCH CLIENT] Connected to #${this.pageConfig.channel} in ${(Date.now() - start) / 1000}s`)
     if (this.pageConfig.overlaySysMsg == 'true') {
       this.createSystemMessage(`Connected to #${this.pageConfig.channel}!`)
     }
@@ -340,7 +353,7 @@ export default {
           break
         case "refreshemotes":
         case "reloademotes":
-          this.api.fetchEmotes(this.pageConfig.hideUnlistedEmotes, this.pageConfig.hidePrivateEmotes)
+          this.api.fetchEmotes()
           if (this.pageConfig.stvSysMsg == 'true') {
             this.createSystemMessage('Emotes have been reloaded.')
           }

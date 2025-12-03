@@ -87,7 +87,7 @@
               weights)</span>
             Font Weight:
           </span>
-          <input type="number" min="100" max="900" step="100" placeholder="800" v-model="font_weight" />
+          <input type="number" min="100" max="900" step="100" placeholder="700" v-model="font_weight" />
         </div>
       </div>
     </div>
@@ -264,6 +264,14 @@
             Readable Username Colors:
           </label>
           <input id="readable_colors" type="checkbox" v-model="readable_colors" value="false" checked />
+        </div>
+
+        <div class="param">
+          <label class="setting-name tooltip" for="auto_reload">
+            <span class="tooltiptext">Automatically reload emotes every 5 mins</span>
+            Auto Reload Emotes:
+          </label>
+          <input id="auto_reload" type="checkbox" v-model="auto_reload" value="false" checked />
         </div>
 
         <div class="param">
@@ -490,7 +498,7 @@ export default {
       show_custom_font_option: 'false',
       custom_font: '',
       font_size: '36',
-      font_weight: '800',
+      font_weight: '700',
       max_messages: '50',
       emote_size: '0',
       shadow: 'true',
@@ -504,6 +512,7 @@ export default {
       animate: 'false',
       display_interval: '0.2',
       readable_colors: 'true',
+      auto_reload: 'true',
       display_system_messages: 'false',
       overlay_system_msg: 'false',
       twitch_system_msg: 'false',
@@ -551,6 +560,7 @@ export default {
         animate = '',
         display_interval = '',
         readable_colors = '',
+        auto_reload = '',
         overlay_system_msg = '',
         twitch_system_msg = '',
         stv_system_msg = '',
@@ -576,7 +586,7 @@ export default {
       }
 
       font_size = this.font_size != '36' ? `&font_size=${this.font_size}` : ``
-      font_weight = this.font_weight != '800' ? `&font_weight=${this.font_weight}` : ``
+      font_weight = this.font_weight != '700' ? `&font_weight=${this.font_weight}` : ``
       max_messages = this.max_messages != '50' ? `&max_messages=${this.max_messages}` : ``
       emote_size = this.emote_size != '0' ? `&emote_size=${this.emote_size}` : ``
       shadow = this.shadow != 'true' ? `&shadow=${this.shadow}` : ``
@@ -587,6 +597,7 @@ export default {
       animate = this.animate != 'false' ? `&animate=${this.animate}` : ``
       display_interval = parseFloat(this.display_interval) * 1000 != 200 ? `&display_interval=${parseFloat(this.display_interval) * 1000}` : ``
       readable_colors = this.readable_colors != 'true' ? `&readable_colors=${this.readable_colors}` : ``
+      auto_reload = this.auto_reload != 'true' ? `&auto_reload=${this.auto_reload}` : ``
       overlay_system_msg = this.overlay_system_msg != 'false' && this.display_system_messages ? `&overlay_sys_msg=${this.overlay_system_msg}` : ``
       twitch_system_msg = this.twitch_system_msg != 'false' && this.display_system_messages ? `&twitch_sys_msg=${this.twitch_system_msg}` : ``
       stv_system_msg = this.stv_system_msg != 'false' && this.display_system_messages ? `&stv_sys_msg=${this.stv_system_msg}` : ``
@@ -607,7 +618,7 @@ export default {
       ignore = this.ignore != '' ? `&hide=${this.ignore.replace(/\s+/g, '')}` : ``
       filter = this.filter_messages != '' ? `&filter=${encodeURIComponent(this.filter_messages)}` : ``
 
-      return `https://itsalviiin.github.io/JstChat2/#/chat?channel=${this.channel.toLowerCase()}&font=${encodeURIComponent(font)}${font_size}${font_weight}${max_messages}${emote_size}${shadow}${bg}${border}${fade}${animate}${display_interval}${readable_colors}${overlay_system_msg}${twitch_system_msg}${stv_system_msg}${highlight_first_time}${highlight_redeemed}${hide_personal}${hide_unlisted}${hide_private}${hide_paints}${hide_bttv_badge}${hide_ffz_badge}${hide_7tv_badge}${hide_chatterino_badge}${shared_chat_badge}${self_shared_badge}${hide_bots}${hide_commands}${ignore}${filter}`
+      return `https://itsalviiin.github.io/JstChat2/#/chat?channel=${this.channel.toLowerCase()}&font=${encodeURIComponent(font)}${font_size}${font_weight}${max_messages}${emote_size}${shadow}${bg}${border}${fade}${animate}${display_interval}${readable_colors}${auto_reload}${overlay_system_msg}${twitch_system_msg}${stv_system_msg}${highlight_first_time}${highlight_redeemed}${hide_personal}${hide_unlisted}${hide_private}${hide_paints}${hide_bttv_badge}${hide_ffz_badge}${hide_7tv_badge}${hide_chatterino_badge}${shared_chat_badge}${self_shared_badge}${hide_bots}${hide_commands}${ignore}${filter}`
     },
     showBackgroundOptions() {
       if (this.show_bg_options == 'true') {

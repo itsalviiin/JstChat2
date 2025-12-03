@@ -4,8 +4,7 @@ import ffz from './twitch/ffz'
 import chatterino from './twitch/chatterino'
 import TwitchAPI from './twitch/twitch'
 
-// https://7tv.io/v3/emote-sets/global
-const SevenTVGlobalEmoteSetID = '01HKQT8EWR000ESSWF3625XCS4'
+const SevenTVGlobalEmoteSetID = 'global'
 
 export default class API {
   constructor(channel) {
@@ -29,31 +28,27 @@ export default class API {
 
   }
 
-  async fetchEmotes(hideUnlistedEmotes, hidePrivateEmotes) {
+  async fetchEmotes() {
     /** Global Emotes */
     this.emotes = Object.assign(this.emotes, await this.BTTV.getBttvGlobalEmotes())
     this.emotes = Object.assign(this.emotes, await this.FFZ.getFfzGlobalEmotes(this.twitch.userID))
-    this.emotes = Object.assign(this.emotes, await this.SevenTV.get7tvEmoteSetObj(SevenTVGlobalEmoteSetID, hideUnlistedEmotes, hidePrivateEmotes))
+    this.emotes = Object.assign(this.emotes, await this.SevenTV.get7tvEmoteSetObj(SevenTVGlobalEmoteSetID))
 
+    /** Channel Emotes */
     this.emotes = Object.assign(this.emotes, await this.BTTV.getBttvEmotes(this.twitch.userID))
 
-    let em;
-    em = await this.FFZ.getFfzEmotes(this.twitch.channel)
-    if (em[1] != undefined) {
-      this.twitch.badges["moderator"] = { '1': em[1] }
+    let ffzData = await this.FFZ.getFfzEmotes(this.twitch.channel)
+    if (ffzData[1] != undefined) {
+      this.twitch.badges["moderator"] = { '1': ffzData[1] }
     }
-    if (em[2] != undefined) {
-      this.twitch.badges["vip"] = { '1': em[2] }
+    if (ffzData[2] != undefined) {
+      this.twitch.badges["vip"] = { '1': ffzData[2] }
     }
-    this.emotes = Object.assign(this.emotes, em[0])
+    this.emotes = Object.assign(this.emotes, ffzData[0])
 
-    try {
-      let s = await this.SevenTV.get7tvEmotes(this.twitch.userID, hideUnlistedEmotes, hidePrivateEmotes)
-      this.emotes = Object.assign(this.emotes, s[0])
-      this.seventv_id = s[1]
-    } catch (err) {
-      console.log(err)
-    }
+    let stvData = await this.SevenTV.get7TVUser(this.twitch.userID)
+    this.emotes = Object.assign(this.emotes, stvData[0])
+    this.seventv_id = stvData[1]
 
     /** Badges */
     this.ffzbadges = await this.FFZ.getFfzBadges(this.twitch.channel)

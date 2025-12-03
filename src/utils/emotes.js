@@ -67,13 +67,14 @@ export default {
     let res = ' ' + html + ' '
     let words = html.split(' ')
 
-    let emotes = data.emotes
+    const emotes = data.emotes
+    const settings = data.settings
+    const scale = data.scale
     let allEmotes = [...new Set([
       ...Object.keys(emotes.twitch).map(emote => emote.replace('<', '&lt;')),
       ...Object.keys(emotes.ext),
       ...(emotes.personal !== undefined ? emotes.personal.map(obj => obj.Name) : [])])]
 
-    let scale = data.scale
     let i = 0
     while (i < words.length) {
       /** If current word is an emote,
@@ -83,9 +84,13 @@ export default {
         /** Check if next word is a zero width emote,
          * otherwise make it it's own emote container
          */
-        if (i < words.length - 1 && getEmoteData(words[i + 1], emotes)?.ZeroWidth) {
-          let data = getEmoteData(words[i], emotes)
-          let maxWidth = data.width
+        if (i < words.length - 1 && getEmoteData(words[i + 1], emotes)?.zeroWidth) {
+          let emoteData = getEmoteData(words[i], emotes)
+          if ((emoteData?.unlisted && settings.unlisted) || (emoteData?.private && settings.private)) {
+            i++
+            continue
+          }
+          let maxWidth = emoteData.width
           /** Used to store the emotes that will be combined */
           let emoteNames = [words[i]]
           let tempI = i
@@ -95,11 +100,15 @@ export default {
            * zero width
            */
           while (tempI < words.length) {
-            let data = getEmoteData(words[tempI + 1], emotes)
-            if (data?.ZeroWidth) {
+            let emoteData = getEmoteData(words[tempI + 1], emotes)
+            if ((emoteData?.unlisted && settings.unlisted) || (emoteData?.private && settings.private)) {
+              i++
+              continue
+            }
+            if (emoteData?.zeroWidth) {
               emoteNames.push(words[tempI + 1])
-              if (maxWidth < data.width) {
-                maxWidth = data.width
+              if (maxWidth < emoteData.width) {
+                maxWidth = emoteData.width
               }
             } else {
               break
@@ -111,20 +120,24 @@ export default {
           let maxFound = false
           /** Setup emotes with zero width */
           for (const emote of emoteNames) {
-            let em = getEmoteData(emote, emotes)
-            if (em.width == maxWidth) {
+            let emoteData = getEmoteData(emote, emotes)
+            if ((emoteData?.unlisted && settings.unlisted) || (emoteData?.private && settings.private)) {
+              i++
+              continue
+            }
+            if (emoteData.width == maxWidth) {
               /** If the emote width matches the max */
               if (!maxFound) {
                 /** If one has not been found yet, make
                  * it the base (zerowidth = false)
                  */
-                emotesHTML += ` <img class="emote" src="${EmotesBaseUrl[em.Type + (em.animated ? 'animated' : '')].replace('{0}', em.ID)}"${scale != 0 ? ` style="max-width: ${getNewWidth(64, 192, scale)}px; width: ${getNewWidth(em.height, em.width, scale)}px; height: ${em.height + scale}px;"` : ``} ZeroWidth="false">`
+                emotesHTML += ` <img class="emote" src="${EmotesBaseUrl[emoteData.type + (emoteData.animated ? 'animated' : '')].replace('{0}', emoteData.id)}"${scale != 0 ? ` style="max-width: ${getNewWidth(64, 192, scale)}px; width: ${getNewWidth(emoteData.height, emoteData.width, scale)}px; height: ${emoteData.height + scale}px;"` : ``} zeroWidth="false">`
                 maxFound = true
               } else {
                 /** If one has been found */
-                emotesHTML += ` <img class="emote" src="${EmotesBaseUrl[em.Type + (em.animated ? 'animated' : '')].replace('{0}', em.ID)}" ${scale != 0 ? ` max-width: ${getNewWidth(64, 192, scale)}px; width: ${getNewWidth(em.height, em.width, scale)}px; height: ${em.height + scale}px;` : ``}" ZeroWidth="true">`
+                emotesHTML += ` <img class="emote" src="${EmotesBaseUrl[emoteData.type + (emoteData.animated ? 'animated' : '')].replace('{0}', emoteData.id)}" ${scale != 0 ? ` max-width: ${getNewWidth(64, 192, scale)}px; width: ${getNewWidth(emoteData.height, emoteData.width, scale)}px; height: ${emoteData.height + scale}px;` : ``}" zeroWidth="true">`
               }
-            } else if (em.width < maxWidth) {
+            } else if (emoteData.width < maxWidth) {
               /** If the emote width is less than the max width,
                * then apply zerowidth and z-index */
               if (!maxFound) {
@@ -135,13 +148,13 @@ export default {
                   let emojiHTML = twemoji.parse(words[i], {
                     base: 'https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/',
                   })
-                  emotesHTML += emojiHTML.replace(`class="emoji"`, `class="emoji" style="z-index: -1;" ZeroWidth="true"`)
+                  emotesHTML += emojiHTML.replace(`class="emoji"`, `class="emoji" style="z-index: -1;" zeroWidth="true"`)
                 } else {
-                  emotesHTML += ` <img class="emote" src="${EmotesBaseUrl[em.Type + (em.animated ? 'animated' : '')].replace('{0}', em.ID)}" style="z-index: -1;${scale != 0 ? ` max-width: ${getNewWidth(64, 192, scale)}px; width: ${getNewWidth(em.height, em.width, scale)}px; height: ${em.height + scale}px;` : ``}" ZeroWidth="true">`
+                  emotesHTML += ` <img class="emote" src="${EmotesBaseUrl[emoteData.type + (emoteData.animated ? 'animated' : '')].replace('{0}', emoteData.id)}" style="z-index: -1;${scale != 0 ? ` max-width: ${getNewWidth(64, 192, scale)}px; width: ${getNewWidth(emoteData.height, emoteData.width, scale)}px; height: ${emoteData.height + scale}px;` : ``}" zeroWidth="true">`
                 }
               } else {
                 /** If one has been found, make the emote zero width */
-                emotesHTML += ` <img class="emote" src="${EmotesBaseUrl[em.Type + (em.animated ? 'animated' : '')].replace('{0}', em.ID)}" style="${scale != 0 ? ` max-width: ${getNewWidth(64, 192, scale)}px; width: ${getNewWidth(em.height, em.width, scale)}px; height: ${em.height + scale}px;` : ``}" ZeroWidth="true">`
+                emotesHTML += ` <img class="emote" src="${EmotesBaseUrl[emoteData.type + (emoteData.animated ? 'animated' : '')].replace('{0}', emoteData.id)}" style="${scale != 0 ? ` max-width: ${getNewWidth(64, 192, scale)}px; width: ${getNewWidth(emoteData.height, emoteData.width, scale)}px; height: ${emoteData.height + scale}px;` : ``}" zeroWidth="true">`
               }
             }
           }
@@ -155,7 +168,11 @@ export default {
         } else {
           /** One emote */
           let name = words[i]
-          let em = getEmoteData(name, emotes)
+          let emoteData = getEmoteData(name, emotes)
+          if ((emoteData?.unlisted && settings.unlisted) || (emoteData?.private && settings.private)) {
+            i++
+            continue
+          }
           let emotesHTML
           if (Common.checkEmoji(name)) {
             emotesHTML = twemoji.parse(name, {
@@ -166,7 +183,7 @@ export default {
               ` ${emotesHTML.replace(/\$/g, "$$$$")} `,
             )
           } else {
-            emotesHTML = `<img class="emote" src="${EmotesBaseUrl[em.Type + (em.animated ? 'animated' : '')].replace('{0}', em.ID)}"${scale != 0 ? ` style="max-width: ${getNewWidth(64, 192, scale)}px; width: ${getNewWidth(em.height, em.width, scale)}px; height: ${em.height + scale}px;"` : ``} ZeroWidth="false"> `
+            emotesHTML = `<img class="emote" src="${EmotesBaseUrl[emoteData.type + (emoteData.animated ? 'animated' : '')].replace('{0}', emoteData.id)}"${scale != 0 ? ` style="max-width: ${getNewWidth(64, 192, scale)}px; width: ${getNewWidth(emoteData.height, emoteData.width, scale)}px; height: ${emoteData.height + scale}px;"` : ``} zeroWidth="false"> `
             res = res.replace(
               ` ${name} `,
               ` ${emotesHTML.replace(/\$/g, "$$$$")} `,
@@ -200,7 +217,7 @@ export default {
         for (const t of html.split(' ')) {
           res = res.replace(
             ` ${em.Name} `,
-            ` <img class="emote" src="${EmotesBaseUrl[em.Type].replace('{0}', em.ID)}" ZeroWidth="${em.ZeroWidth}"> `,
+            ` <img class="emote" src="${EmotesBaseUrl[em.type].replace('{0}', em.id)}" zeroWidth="${em.zeroWidth}"> `,
           )
         }
       }
