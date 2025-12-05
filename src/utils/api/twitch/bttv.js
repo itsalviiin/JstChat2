@@ -1,5 +1,5 @@
 export default {
-  async getBttvEmotes(user_id) {
+  async getBTTVEmotes(user_id) {
     let emotes = {}
     try {
       const response = await fetch(`https://api.betterttv.net/3/cached/users/twitch/${user_id}`)
@@ -35,7 +35,7 @@ export default {
     }
     return {}
   },
-  async getBttvGlobalEmotes() {
+  async getBTTVGlobalEmotes() {
     let emotes = {}
 
     try {

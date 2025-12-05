@@ -1,44 +1,8 @@
 export default {
-  /** Used for Personal Emotes */
-  async get7tvEmoteSet(set_id) {
-    const response = await fetch(`https://7tv.io/v3/emote-sets/${set_id}`, { signal: AbortSignal.timeout(10000) })
-    if (response.ok) {
-      let emotes = []
-
-      const json = await response.json()
-      if (json.emotes != undefined) {
-        for (const emote of json.emotes) {
-          emotes.push({
-            Name: emote.name,
-            id: emote.id,
-            type: '7TV',
-            zeroWidth: emote.flags == 1,
-            unlisted: !emote.data.listed,
-            private: emote.data.flags == 1,
-            width: emote.data.host.files[1].width,
-            height: emote.data.host.files[1].height,
-          })
-        }
-
-        let owner
-        for (const connection of json.owner.connections) {
-          if (connection.platform == "TWITCH") {
-            owner = connection.id
-          }
-        }
-
-        return [emotes, owner]
-      } else {
-        return [undefined, undefined]
-      }
-    }
-    throw 'failed to fetch 7tv emote set'
-  },
-
-  async get7tvEmoteSetObj(emoteSetID) {
+  async get7TVGlobalEmotes() {
     let emotes = {}
 
-    const response = await fetch(`https://7tv.io/v3/emote-sets/${emoteSetID}`, { signal: AbortSignal.timeout(10000) })
+    const response = await fetch(`https://7tv.io/v3/emote-sets/global`, { signal: AbortSignal.timeout(10000) })
     if (response.ok) {
       const json = await response.json()
       for (const value of json.emotes) {
@@ -63,7 +27,6 @@ export default {
   async get7TVUser(userID) {
     let emotes = {}
     try {
-
       const getUser = await fetch(`https://7tv.io/v4/gql`, {
         method: 'POST',
         headers: {
@@ -185,9 +148,48 @@ export default {
         }
       }
 
-      return [emotes, currentSetID]
+      return {
+        userID: userData.data.users.userByConnection.id,
+        emotes: emotes,
+        setID: currentSetID,
+      }
     } catch {
       return {}
     }
-  }
+  },
+
+  async get7TVPersonalSet(set_id) {
+    const response = await fetch(`https://7tv.io/v3/emote-sets/${set_id}`, { signal: AbortSignal.timeout(10000) })
+    if (response.ok) {
+      let emotes = []
+
+      const json = await response.json()
+      if (json.emotes != undefined) {
+        for (const emote of json.emotes) {
+          emotes.push({
+            Name: emote.name,
+            id: emote.id,
+            type: '7TV',
+            zeroWidth: emote.flags == 1,
+            unlisted: !emote.data.listed,
+            private: emote.data.flags == 1,
+            width: emote.data.host.files[1].width,
+            height: emote.data.host.files[1].height,
+          })
+        }
+
+        let owner
+        for (const connection of json.owner.connections) {
+          if (connection.platform == "TWITCH") {
+            owner = connection.id
+          }
+        }
+
+        return [emotes, owner]
+      } else {
+        return [undefined, undefined]
+      }
+    }
+    throw 'failed to fetch 7tv emote set'
+  },
 }

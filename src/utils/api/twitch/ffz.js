@@ -1,5 +1,5 @@
 export default {
-  async getFfzEmotes(channel) {
+  async getFFZEmotes(channel) {
     /** Returns emotes, custom mod badge, and custom vip badge */
     let emotes = {}
 
@@ -19,12 +19,13 @@ export default {
         }
 
         /** Custom Badges */
-        let mod_badge = undefined
-        if (json.room.mod_urls != undefined) mod_badge = `https://cdn.frankerfacez.com/room-badge/mod/${channel}/2/rounded`
+        let modBadge = undefined
+        if (json.room.mod_urls != undefined) modBadge = `https://cdn.frankerfacez.com/room-badge/mod/${channel}/2/rounded`
 
-        let vip_badge = undefined
-        if (json.room.vip_badge != undefined) vip_badge = `https://cdn.frankerfacez.com/room-badge/vip/${channel}/2`
-        return [emotes, mod_badge, vip_badge]
+        let vipBadge = undefined
+        if (json.room.vip_badge != undefined) vipBadge = `https://cdn.frankerfacez.com/room-badge/vip/${channel}/2`
+        // return [emotes, mod_badge, vip_badge]
+        return { emotes, modBadge, vipBadge }
       }
       if (response.status != 404) {
         throw 'not loaded'
@@ -35,7 +36,7 @@ export default {
     return []
   },
 
-  async getFfzGlobalEmotes() {
+  async getFFZGlobalEmotes() {
     let emotes = {}
 
     try {

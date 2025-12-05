@@ -3,7 +3,7 @@ import Message from './chat/Message.vue'
 import TwitchClient from '@/utils/chat_clients/twitch/client'
 import API from '@/utils/api/api'
 // import Common from '@/utils/common'
-import EventAPI from '@/utils/eventapi/seventv'
+import EventAPI from '@/utils/eventapi/7tvEvent'
 
 export default {
   name: 'ChatView',
@@ -169,6 +169,9 @@ export default {
         }
       }
     },
+    async onEmoteSetChange() {
+      await this.api.fetchEmotes()
+    },
     async onPersonalEmotes(e, user) {
       if (e != undefined && user != undefined) {
         this.api.personalEmotes[user] = e
@@ -309,13 +312,15 @@ export default {
     await this.api.twitch.fetchData(this.api.fetchEmotes)
 
     await this.api.fetchEmotes()
+    await this.api.fetchCosmetics()
 
-    if (this.pageConfig.auto_reload == 'true') {
-      setInterval(() => {
+    setInterval(() => {
+      if (this.pageConfig.auto_reload == 'true') {
         this.api.fetchEmotes()
         console.log('[EMOTES] Auto-reloaded emotes')
-      }, 5 * 60 * 1000);
-    }
+      }
+      this.api.fetchCosmetics()
+    }, 5 * 60 * 1000);
 
     this.client = new TwitchClient(this.pageConfig.channel)
     this.client.connect()
@@ -385,7 +390,7 @@ export default {
     }
 
     /** Connecting to 7TV EventAPI */
-    this.EventAPI = new EventAPI(this.api.seventv_id, this.api.twitch.userID)
+    this.EventAPI = new EventAPI(this.api.twitch.userID, this.api.stvUserID, this.api.stvSetID)
 
     this.EventAPI.onDelete = this.onEmoteDelete
     this.EventAPI.onRename = this.onEmoteRename
@@ -396,6 +401,7 @@ export default {
     this.EventAPI.onPaintCreate = this.onPaintCreate
     this.EventAPI.onPaintDelete = this.onPaintDelete
 
+    this.EventAPI.onEmoteSetChange = this.onEmoteSetChange
     this.EventAPI.onPersonalEmotes = this.onPersonalEmotes
 
     this.EventAPI.Connect()

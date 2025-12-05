@@ -1,10 +1,11 @@
 import apis from '@/utils/api/twitch/7tv'
 
 class EventAPI {
-  constructor(set_id, user_id) {
+  constructor(userID, stvUserID, emoteSetID) {
     this.ws = null
-    this.set_id = set_id // current channel emote set id
-    this.user_id = user_id // channel id
+    this.userID = userID
+    this.stvUserID = stvUserID
+    this.emoteSetID = emoteSetID
 
     this.onDelete = undefined
     this.onAdd = undefined
@@ -17,6 +18,7 @@ class EventAPI {
 
     this.pending = {}
 
+    this.onEmoteSetChange = undefined
     this.onPersonalEmotes = undefined
 
     this.IsDisconnected = true
@@ -42,7 +44,7 @@ class EventAPI {
 
   async onOpen() {
     this.IsDisconnected = false
-    console.log('7TV Event API: Connected')
+    console.log('[7TV Event API] Connected')
   }
 
   async onClose() {
@@ -50,7 +52,7 @@ class EventAPI {
 
     this.IsReconnecting = true
 
-    console.log('7TV Event API: Disconnected')
+    console.log('[7TV Event API] Disconnected')
     this.IsDisconnected = true
 
     this.attemps++
@@ -68,6 +70,7 @@ class EventAPI {
       },
     }
     this.ws.send(JSON.stringify(message))
+    console.log('[7TV Event API] Subscribed to ' + event)
   }
 
   getTwitchConnection(connections) {
@@ -88,15 +91,17 @@ class EventAPI {
         break
       }
       case 1: {
-        if (this.set_id) {
-          this.subscribeToEvent('emote_set.*', { object_id: this.set_id })
+        if (this.emoteSetID) {
+          this.subscribeToEvent('emote_set.*', { object_id: this.emoteSetID })
+        }
+        if (this.stvUserID) {
+          this.subscribeToEvent('user.*', { object_id: this.stvUserID })
         }
         const cond = {
-          id: this.user_id,
+          id: this.userID,
           ctx: 'channel',
           platform: 'TWITCH',
         }
-        this.subscribeToEvent('emote_set.*', cond)
         this.subscribeToEvent('cosmetic.*', cond)
         this.subscribeToEvent('entitlement.*', cond)
         break
@@ -104,7 +109,7 @@ class EventAPI {
       case 0:
         switch (json.d.type) {
           case 'emote_set.update': {
-            if (json.d.body.id != this.set_id) return
+            if (json.d.body.id != this.emoteSetID) return
 
             if (json.d.body.pulled) {
               for (const item of json.d.body.pulled) {
@@ -130,10 +135,7 @@ class EventAPI {
           /** Personal Emotes */
           case 'emote_set.create': {
             if (json.d.body.object.name != 'Personal Emotes') break
-            let set_id = json.d.body.object.id
-
-            this.onPersonalEmotes(...(await apis.get7tvEmoteSet(set_id)))
-
+            this.onPersonalEmotes(...(await apis.get7TVPersonalSet(json.d.body.object.id)))
             break
           }
 
@@ -190,6 +192,17 @@ class EventAPI {
                 break
               }
             }
+            break
+          }
+
+          case 'user.update': {
+            this.ws.onclose = null
+            this.ws.close()
+            this.IsDisconnected = true
+            this.emoteSetID = json.d.body.updated[0].value[0].value.id
+            this.Connect()
+            console.log(`[7TV Event API] Emote set changed to ${this.emoteSetID}`)
+            this.onEmoteSetChange()
             break
           }
         }

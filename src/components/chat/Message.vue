@@ -31,7 +31,11 @@ export default {
 
       if (this.payload.tags.badges != null) {
         for (const [i, k] of Object.entries(this.payload.tags.badges)) {
-          badges.push(this.api.twitch.badges[i][k])
+          if (this.api.twitch.badges[i] && this.api.twitch.badges[i][k]) {
+            badges.push(this.api.twitch.badges[i][k])
+          } else {
+            continue
+          }
         }
       }
 
