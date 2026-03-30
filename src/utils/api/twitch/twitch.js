@@ -16,24 +16,58 @@ export default class TwitchAPI {
   }
 
   async getBadges(user_id, channel) {
-    let badges = {}
+    var badges = {}
+
     try {
-      let response = await fetch('https://api.ivr.fi/v2/twitch/badges/global')
+      const response = await fetch('https://api.spanix.team/global_badges/', { signal: AbortSignal.timeout(5000) })
       if (response.ok) {
-        let json = await response.json()
-        for (const value of json) {
-          let vers = value['versions']
-          let finalVersions = {}
-          for (const value of vers) {
-            finalVersions[value['id']] = value['image_url_2x']
+        const json = await response.json()
+        for (const value of json.badges) {
+          if (!Object.keys(badges).includes(value['setID'])) {
+            badges[value["setID"]] = {}
           }
-          badges[value['set_id']] = finalVersions
+          badges[value["setID"]][value["version"]] = value['image_url_2x']
+        }
+      }
+    } catch {
+      console.log(`Unable to fetch global badges, trying alterative api`)
+      try {
+        const response = await fetch('https://api.ivr.fi/v2/twitch/badges/global', { signal: AbortSignal.timeout(5000) })
+        if (response.ok) {
+          const json = await response.json()
+          for (const value of json) {
+            let vers = value['versions']
+            let finalVersions = {}
+            for (const value of vers) {
+              finalVersions[value['id']] = value['image_url_2x']
+            }
+            badges[value['set_id']] = finalVersions
+          }
         }
 
-        /** Add channel specific badges (bits etc.) */
-        let channelRequest = await fetch(`https://api.ivr.fi/v2/twitch/badges/channel?id=${user_id}`)
+      } catch {
+        console.log(`Failed to fetch global badges`)
+      }
+    }
+
+    /** Add channel specific badges (bits etc.) */
+    try {
+      const channelRequest = await fetch(`https://api.spanix.team/get_info/${channel}`, { signal: AbortSignal.timeout(5000) })
+      if (channelRequest.ok) {
+        const json = await channelRequest.json()
+        for (const value of json.user.broadcastBadges) {
+          if (!Object.keys(badges).includes(value['setID'])) {
+            badges[value["setID"]] = {}
+          }
+          badges[value["setID"]][value["version"]] = value['image_url_2x']
+        }
+      }
+    } catch {
+      console.log(`Unable to fetch channel badges, trying alterative api`)
+      try {
+        const channelRequest = await fetch(`https://api.ivr.fi/v2/twitch/badges/channel?id=${user_id}`, { signal: AbortSignal.timeout(5000) })
         if (channelRequest.ok) {
-          json = await channelRequest.json()
+          const json = await channelRequest.json()
           for (const value of json) {
             let vers = value['versions']
             let finalVersions = {}
@@ -43,53 +77,48 @@ export default class TwitchAPI {
             badges[value['set_id']] = finalVersions
           }
 
-          return badges
         }
-      }
-      return {}
-    } catch (e) {
-      console.log(e)
-      let response = await fetch('https://api.spanix.team/global_badges/', { signal: AbortSignal.timeout(5000) })
-      if (response.ok) {
-        let json = await response.json()
-        for (const value of json.badges) {
-          if (!Object.keys(badges).includes(value['setID'])) {
-            badges[value["setID"]] = {}
-          }
-          badges[value["setID"]][value["version"]] = value['image_url_2x']
-        }
-
-        /** Add channel specific badges (bits etc.) */
-        let channelRequest = await fetch(`https://api.spanix.team/get_info/${channel}`)
-        if (channelRequest.ok) {
-          json = await channelRequest.json()
-          console.log(json)
-          for (const value of json.user.broadcastBadges) {
-            if (value['setID'] != 'subscriber') {
-              if (!Object.keys(badges).includes(value['setID'])) {
-                badges[value["setID"]] = {}
-              }
-              badges[value["setID"]][value["version"]] = value['image_url_2x']
-            }
-          }
-
-          return badges
-        }
+      } catch {
+        console.log(`Failed to fetch channel badges`)
       }
     }
-    return {}
+    return badges
   }
+
   async getUserID(channel) {
-    const response = await fetch(`https://api.ivr.fi/v2/twitch/user?login=${channel}`)
-    if (response.ok) {
-      const json = await response.json()
-      return {
-        id: json[0].id,
-        prefix: json[0].emotePrefix,
-        isPartner: json[0].roles.isPartner,
-        profile: json[0].logo
+    try {
+      const response = await fetch(`https://api.ivr.fi/v2/twitch/user?login=${channel}`, { signal: AbortSignal.timeout(5000) })
+      if (response.ok) {
+        const json = await response.json()
+        return {
+          id: json[0].id,
+          prefix: json[0].emotePrefix,
+          isPartner: json[0].roles.isPartner,
+          profile: json[0].logo
+        }
+      }
+    } catch {
+      console.log(`Unable to get user id, trying alternative`)
+      try {
+        let channelRequest = await fetch(`https://api.spanix.team/get_info/${channel}`, { signal: AbortSignal.timeout(5000) })
+        if (channelRequest.ok) {
+          const json = await channelRequest.json()
+          return {
+            id: json.user.id,
+            prefix: undefined,
+            isPartner: json.user.roles.isPartner,
+            profile: json.user.profileImageURL.replaceAll("150", "600")
+          }
+        }
+      } catch {
+        console.log(`Failed to get user id`)
       }
     }
-    throw 'Unable to get user id from ivr API!'
+    return {
+      id: "",
+      prefix: undefined,
+      isPartner: undefined,
+      profile: null
+    }
   }
 }

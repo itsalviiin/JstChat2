@@ -242,7 +242,7 @@ export default {
 
 #content .emoji {
   /* max-height: v-bind('EmojiSize'); */
-  max-height: 1.3em;
+  max-height: 1.2em;
   vertical-align: middle;
 }
 </style>

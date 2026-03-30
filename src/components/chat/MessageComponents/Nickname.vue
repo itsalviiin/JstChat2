@@ -85,6 +85,7 @@ export default {
 
 <style>
 .nickname {
+  padding-left: 1px;
   color: v-bind('Color');
   filter: v-bind('filter');
 }

@@ -45,15 +45,17 @@ export default class API {
     this.emotes = Object.assign(this.emotes, ffzData.emotes)
 
     let stvData = await this.sevenTV.get7TVUser(this.twitch.userID)
-    this.emotes = Object.assign(this.emotes, stvData.emotes)
-    this.stvSetID = stvData.setID
-    this.stvUserID = stvData.userID
+    if (Object.keys(stvData).length != 0) {
+      this.emotes = Object.assign(this.emotes, stvData.emotes)
+      this.stvSetID = stvData.setID
+      this.stvUserID = stvData.userID
+    }
   }
 
   async fetchCosmetics() {
     /** Badges */
-    this.ffzbadges = await this.ffz.getFfzBadges(this.twitch.channel)
-    this.ffzChannelbadges = await this.ffz.getFfzChannelBadges(this.twitch.channel)
+    this.ffzbadges = await this.ffz.getFFZBadges(this.twitch.channel)
+    this.ffzChannelbadges = await this.ffz.getFFZChannelBadges(this.twitch.channel)
     this.bttvbadges = await this.bttv.getBttvBadges(this.twitch.userID)
     this.chatterinobadges = await this.chatterino.getChatterinoBadges()
   }

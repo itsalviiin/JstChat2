@@ -63,7 +63,7 @@ export default {
     return {}
   },
 
-  async getFfzBadges() {
+  async getFFZBadges() {
     let badges = []
     try {
       const response = await fetch(`https://api.frankerfacez.com/v1/badges/ids`)
@@ -82,7 +82,7 @@ export default {
     }
   },
 
-  async getFfzChannelBadges(channel) {
+  async getFFZChannelBadges(channel) {
     let badges = []
     try {
       const channelResponse = await fetch(`https://api.frankerfacez.com/v1/_room/${channel}`)

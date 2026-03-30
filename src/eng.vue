@@ -17,13 +17,13 @@
         </div>
         <div id="list">
           <br>• Displays emotes from Twitch, BetterTTV, FrankerFaceZ, and 7TV
-          <br>• Auto updates 7TV emotes that are added/removed/renamed to the channel
+          <br>• Auto updates 7TV emotes that are added/removed/renamed or when emote sets are changed
           <br>• Chat commands that mods and broadcasters can use (!refreshoverlay, !refreshemotes, !hideoverlay,
           !showoverlay, !pauseoverlay, !unpauseoverlay)
           <br>• Zero width emotes are displayed nicely
           <br>• Variety of fonts to choose from including custom ones that are installed on your PC
           <br>• Option to animate chat messages when they appear and fade
-          <br>• Option to display system messages
+          <br>• Option to display system messages (subs, raids)
           <br>• Option to highlight first time messages or highlight messages from channel points
           <br>• Option to hide 7TV paints and third-party badges
           <br>• Option to hide personal, unlisted, or private 7TV emotes
