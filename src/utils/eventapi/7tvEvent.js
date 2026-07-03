@@ -21,16 +21,16 @@ class EventAPI {
     this.onEmoteSetChange = undefined
     this.onPersonalEmotes = undefined
 
-    this.IsDisconnected = true
+    this.isDisconnected = true
 
-    this.IsReconnecting = false
+    this.isReconnecting = false
 
-    this.Timeout = 10000
-    this.attemps = 0
+    this.timeout = 10000
+    this.attempts = 0
   }
 
-  Connect() {
-    if (!this.IsDisconnected) return
+  connect() {
+    if (!this.isDisconnected) return
 
     this.ws = new WebSocket('wss://events.7tv.io/v3')
     this.ws.onmessage = (e) => this.onMessage(e)
@@ -39,26 +39,26 @@ class EventAPI {
     this.ws.onerror = () => {
       this.ws.close()
     }
-    this.IsReconnecting = false
+    this.isReconnecting = false
   }
 
   async onOpen() {
-    this.IsDisconnected = false
+    this.isDisconnected = false
     console.log('[7TV Event API] Connected')
   }
 
   async onClose() {
-    if (this.IsReconnecting) return
+    if (this.isReconnecting) return
 
-    this.IsReconnecting = true
+    this.isReconnecting = true
 
     console.log('[7TV Event API] Disconnected')
-    this.IsDisconnected = true
+    this.isDisconnected = true
 
-    this.attemps++
+    this.attempts++
     setTimeout(() => {
-      this.Connect()
-    }, this.Timeout * this.attemps)
+      this.connect()
+    }, this.timeout * this.attempts)
   }
 
   subscribeToEvent(event, cond) {
@@ -74,9 +74,9 @@ class EventAPI {
   }
 
   getTwitchConnection(connections) {
-    for (const con of connections) {
-      if (con.platform == 'TWITCH') {
-        return con
+    for (const connection of connections) {
+      if (connection.platform === 'TWITCH') {
+        return connection
       }
     }
     return undefined
@@ -87,7 +87,7 @@ class EventAPI {
     switch (json.op) {
       case (4000, 4001, 4002, 4003, 4004, 4005, 4006, 4007, 4008, 4009, 4010, 4011): {
         this.ws.close()
-        this.Connect()
+        this.connect()
         break
       }
       case 1: {
@@ -109,7 +109,7 @@ class EventAPI {
       case 0:
         switch (json.d.type) {
           case 'emote_set.update': {
-            if (json.d.body.id != this.emoteSetID) return
+            if (json.d.body.id !== this.emoteSetID) return
 
             if (json.d.body.pulled) {
               for (const item of json.d.body.pulled) {
@@ -134,8 +134,11 @@ class EventAPI {
 
           /** Personal Emotes */
           case 'emote_set.create': {
-            if (json.d.body.object.name != 'Personal Emotes') break
-            this.onPersonalEmotes(...(await apis.get7TVPersonalSet(json.d.body.object.id)))
+            if (json.d.body.object.name !== 'Personal Emotes') break
+            var personalEmoteData = await apis.getEmoteSetData(json.d.body.object.id)
+            if (personalEmoteData) {
+              this.onPersonalEmotes(...(personalEmoteData))
+            }
             break
           }
 
@@ -156,19 +159,19 @@ class EventAPI {
 
           /** User ID, Cosmetics, and Connections */
           case 'entitlement.create': {
-            let p = this.pending[json.d.body.object.ref_id]
+            let e = this.pending[json.d.body.object.ref_id]
 
-            if (p == undefined) break
+            if (!e) break
 
-            switch (p.kind) {
+            switch (e.kind) {
               case 'PAINT': {
-                p.user = this.getTwitchConnection(json.d.body.object.user.connections)
-                this.onPaintCreate(p)
+                e.user = this.getTwitchConnection(json.d.body.object.user.connections)
+                this.onPaintCreate(e)
                 break
               }
               case 'BADGE': {
-                p.user = this.getTwitchConnection(json.d.body.object.user.connections)
-                this.onBadgeCreate(p)
+                e.user = this.getTwitchConnection(json.d.body.object.user.connections)
+                this.onBadgeCreate(e)
                 break
               }
             }
@@ -176,19 +179,19 @@ class EventAPI {
           }
 
           case 'entitlement.delete': {
-            let p = this.pending[json.d.body.object.ref_id]
+            let e = this.pending[json.d.body.object.ref_id]
 
-            if (p == undefined) break
+            if (!e) break
 
-            switch (p.kind) {
+            switch (e.kind) {
               case 'PAINT': {
-                p.user = this.getTwitchConnection(json.d.body.object.user.connections)
-                this.onPaintDelete(p)
+                e.user = this.getTwitchConnection(json.d.body.object.user.connections)
+                this.onPaintDelete(e)
                 break
               }
               case 'BADGE': {
-                p.user = this.getTwitchConnection(json.d.body.object.user.connections)
-                this.onBadgeDelete(p)
+                e.user = this.getTwitchConnection(json.d.body.object.user.connections)
+                this.onBadgeDelete(e)
                 break
               }
             }
@@ -196,14 +199,16 @@ class EventAPI {
           }
 
           case 'user.update': {
-            this.ws.onclose = null
-            this.ws.close()
-            this.IsDisconnected = true
-            this.emoteSetID = json.d.body.updated[0].value[0].value.id
-            this.Connect()
-            console.log(`[7TV Event API] Emote set changed to ${this.emoteSetID}`)
-            this.onEmoteSetChange()
-            break
+            if (json.d.body.updated[0].value[0].key === "emote_set") {
+              this.ws.onclose = null
+              this.ws.close()
+              this.isDisconnected = true
+              this.emoteSetID = json.d.body.updated[0].value[0].value.id
+              this.connect()
+              console.log(`[7TV Event API] Emote set changed to ${this.emoteSetID}`)
+              this.onEmoteSetChange()
+              break
+            }
           }
         }
     }

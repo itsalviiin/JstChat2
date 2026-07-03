@@ -486,7 +486,7 @@
 </template>
 
 <script>
-import Common from '@/utils/common'
+import common from '@/utils/common'
 export default {
   name: 'MainView',
   data: () => {
@@ -663,7 +663,7 @@ export default {
         return this.paint_shadows
           .map(
             (v) =>
-              `drop-shadow(${v.x_offset * 2}px ${v.y_offset * 2}px ${v.radius}px ${Common.DecimalToStringRGBA(v.color)})`,
+              `drop-shadow(${v.x_offset * 2}px ${v.y_offset * 2}px ${v.radius}px ${common.decimalToStringRGBA(v.color)})`,
           )
           .join(' ')
       } catch {

@@ -1,7 +1,7 @@
 import twemoji from './tweemoji'
-import Common from '@/utils/common'
+import common from '@/utils/common'
 
-var EmotesBaseUrl = {
+var emotesBaseUrl = {
   '7TV': 'https://cdn.7tv.app/emote/{0}/2x.webp',
   BTTV: 'https://cdn.betterttv.net/emote/{0}/2x',
   FFZ: 'https://cdn.frankerfacez.com/emote/{0}/2',
@@ -28,17 +28,13 @@ function getEmoteData(name, emotes) {
   if (emotes.twitch[name.replace('&lt;', '<')]) {
     return emotes.twitch[name.replace('&lt;', '<')]
   }
-  if (emotes.personal) {
-    for (const em of emotes.personal) {
-      if (em.Name == name) {
-        return em
-      }
-    }
+  if (emotes.personal && emotes.personal[name]) {
+    return emotes.personal[name]
   }
   if (emotes.ext && emotes.ext[name]) {
     return emotes.ext[name]
   }
-  if (Common.checkEmoji(name)) {
+  if (common.checkEmoji(name)) {
     return {
       width: 54,
       height: 54,
@@ -62,7 +58,7 @@ function addSpaceBetweenEmoji(html) {
 
 export default {
   /** Parse 7tv, bttv, and ffz emotes */
-  ParseEmotes(html, data) {
+  parseEmotes(html, data) {
     html = addSpaceBetweenEmoji(html)
     let res = ' ' + html + ' '
     let words = html.split(' ')
@@ -73,14 +69,14 @@ export default {
     let allEmotes = [...new Set([
       ...Object.keys(emotes.twitch).map(emote => emote.replace('<', '&lt;')),
       ...Object.keys(emotes.ext),
-      ...(emotes.personal !== undefined ? emotes.personal.map(obj => obj.Name) : [])])]
+      ...(emotes.personal ? Object.keys(emotes.personal) : [])])]
 
     let i = 0
     while (i < words.length) {
       /** If current word is an emote,
        * otherwise skip to next word
        */
-      if (allEmotes.includes(words[i]) || Common.checkEmoji(words[i])) {
+      if (allEmotes.includes(words[i]) || common.checkEmoji(words[i])) {
         /** Check if next word is a zero width emote,
          * otherwise make it it's own emote container
          */
@@ -131,11 +127,11 @@ export default {
                 /** If one has not been found yet, make
                  * it the base (zerowidth = false)
                  */
-                emotesHTML += ` <img class="emote" src="${EmotesBaseUrl[emoteData.type + (emoteData.animated ? 'animated' : '')].replace('{0}', emoteData.id)}"${scale != 0 ? ` style="max-width: ${getNewWidth(64, 192, scale)}px; width: ${getNewWidth(emoteData.height, emoteData.width, scale)}px; height: ${emoteData.height + scale}px;"` : ``} zeroWidth="false">`
+                emotesHTML += ` <img class="emote" src="${emotesBaseUrl[emoteData.type + (emoteData.animated ? 'animated' : '')].replace('{0}', emoteData.id)}"${scale != 0 ? ` style="max-width: ${getNewWidth(64, 192, scale)}px; width: ${getNewWidth(emoteData.height, emoteData.width, scale)}px; height: ${emoteData.height + scale}px;"` : ``} zeroWidth="false">`
                 maxFound = true
               } else {
                 /** If one has been found */
-                emotesHTML += ` <img class="emote" src="${EmotesBaseUrl[emoteData.type + (emoteData.animated ? 'animated' : '')].replace('{0}', emoteData.id)}" ${scale != 0 ? ` max-width: ${getNewWidth(64, 192, scale)}px; width: ${getNewWidth(emoteData.height, emoteData.width, scale)}px; height: ${emoteData.height + scale}px;` : ``}" zeroWidth="true">`
+                emotesHTML += ` <img class="emote" src="${emotesBaseUrl[emoteData.type + (emoteData.animated ? 'animated' : '')].replace('{0}', emoteData.id)}" ${scale != 0 ? ` max-width: ${getNewWidth(64, 192, scale)}px; width: ${getNewWidth(emoteData.height, emoteData.width, scale)}px; height: ${emoteData.height + scale}px;` : ``}" zeroWidth="true">`
               }
             } else if (emoteData.width < maxWidth) {
               /** If the emote width is less than the max width,
@@ -144,17 +140,17 @@ export default {
                 /** If one has not been found yet, make the
                  * emote zero width and apply z-index to -1
                  */
-                if (Common.checkEmoji(words[i])) {
+                if (common.checkEmoji(words[i])) {
                   let emojiHTML = twemoji.parse(words[i], {
                     base: 'https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/',
                   })
                   emotesHTML += emojiHTML.replace(`class="emoji"`, `class="emoji" style="z-index: -1;" zeroWidth="true"`)
                 } else {
-                  emotesHTML += ` <img class="emote" src="${EmotesBaseUrl[emoteData.type + (emoteData.animated ? 'animated' : '')].replace('{0}', emoteData.id)}" style="z-index: -1;${scale != 0 ? ` max-width: ${getNewWidth(64, 192, scale)}px; width: ${getNewWidth(emoteData.height, emoteData.width, scale)}px; height: ${emoteData.height + scale}px;` : ``}" zeroWidth="true">`
+                  emotesHTML += ` <img class="emote" src="${emotesBaseUrl[emoteData.type + (emoteData.animated ? 'animated' : '')].replace('{0}', emoteData.id)}" style="z-index: -1;${scale != 0 ? ` max-width: ${getNewWidth(64, 192, scale)}px; width: ${getNewWidth(emoteData.height, emoteData.width, scale)}px; height: ${emoteData.height + scale}px;` : ``}" zeroWidth="true">`
                 }
               } else {
                 /** If one has been found, make the emote zero width */
-                emotesHTML += ` <img class="emote" src="${EmotesBaseUrl[emoteData.type + (emoteData.animated ? 'animated' : '')].replace('{0}', emoteData.id)}" style="${scale != 0 ? ` max-width: ${getNewWidth(64, 192, scale)}px; width: ${getNewWidth(emoteData.height, emoteData.width, scale)}px; height: ${emoteData.height + scale}px;` : ``}" zeroWidth="true">`
+                emotesHTML += ` <img class="emote" src="${emotesBaseUrl[emoteData.type + (emoteData.animated ? 'animated' : '')].replace('{0}', emoteData.id)}" style="${scale != 0 ? ` max-width: ${getNewWidth(64, 192, scale)}px; width: ${getNewWidth(emoteData.height, emoteData.width, scale)}px; height: ${emoteData.height + scale}px;` : ``}" zeroWidth="true">`
               }
             }
           }
@@ -174,7 +170,7 @@ export default {
             continue
           }
           let emotesHTML
-          if (Common.checkEmoji(name)) {
+          if (common.checkEmoji(name)) {
             emotesHTML = twemoji.parse(name, {
               base: 'https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/',
             })
@@ -183,7 +179,7 @@ export default {
               ` ${emotesHTML.replace(/\$/g, "$$$$")} `,
             )
           } else {
-            emotesHTML = `<img class="emote" src="${EmotesBaseUrl[emoteData.type + (emoteData.animated ? 'animated' : '')].replace('{0}', emoteData.id)}"${scale != 0 ? ` style="max-width: ${getNewWidth(64, 192, scale)}px; width: ${getNewWidth(emoteData.height, emoteData.width, scale)}px; height: ${emoteData.height + scale}px;"` : ``} zeroWidth="false"> `
+            emotesHTML = `<img class="emote" src="${emotesBaseUrl[emoteData.type + (emoteData.animated ? 'animated' : '')].replace('{0}', emoteData.id)}"${scale != 0 ? ` style="max-width: ${getNewWidth(64, 192, scale)}px; width: ${getNewWidth(emoteData.height, emoteData.width, scale)}px; height: ${emoteData.height + scale}px;"` : ``} zeroWidth="false"> `
             res = res.replace(
               ` ${name} `,
               ` ${emotesHTML.replace(/\$/g, "$$$$")} `,
@@ -195,43 +191,15 @@ export default {
     }
     return res.replace(/\s{2,}/g, ' ').trim()
   },
-  /** Parse twitch emotes */
-  ParseTwitch(html, emotes) {
-    let res = ' ' + html + ' '
-    if (emotes) {
-      for (const [em, url] of Object.entries(emotes)) {
-        /* eslint-disable no-unused-vars */
-        for (const a in res.split(' ')) {
-          res = res.replace(` ${em.replace('<', '&lt;')} `, ` <img src="${url}"> `)
-        }
-      }
-    }
-    return res.trim()
-  },
-  /** Parse 7tv personal emotes */
-  ParsePersonal(html, emotes) {
-    let res = ' ' + html + ' '
-    if (emotes !== undefined) {
-      for (const em of emotes) {
-        /* eslint-disable no-unused-vars */
-        for (const t of html.split(' ')) {
-          res = res.replace(
-            ` ${em.Name} `,
-            ` <img class="emote" src="${EmotesBaseUrl[em.type].replace('{0}', em.id)}" zeroWidth="${em.zeroWidth}"> `,
-          )
-        }
-      }
-    }
-    return res.trim()
-  },
+
   /** Parse bits/cheermotes */
-  ParseBits(html, emotes) {
+  parseBits(html, emotes) {
     let res = ' ' + html + ' '
     if (emotes) {
-      for (const [em, data] of Object.entries(emotes)) {
+      for (const [emote, data] of Object.entries(emotes)) {
         /* eslint-disable no-unused-vars */
         for (const a in res.split(' ')) {
-          res = res.replace(` ${em.replace('<', '&lt;')} `, ` <img id="bits" src="${data.url}"> <span style="color: ${data.color};" id="bits">${data.value} </span> `)
+          res = res.replace(` ${emote.replace('<', '&lt;')} `, ` <img id="bits" src="${data.url}"> <span style="color: ${data.color};" id="bits">${data.value} </span> `)
         }
       }
     }

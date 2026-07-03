@@ -1,13 +1,42 @@
 export default {
+  async getFFZGlobalEmotes() {
+    try {
+      const response = await fetch(`https://api.frankerfacez.com/v1/set/global`, { signal: AbortSignal.timeout(10000) })
+      if (response.ok) {
+        const json = await response.json()
+
+        var emotes = {}
+
+        for (const value of json.sets['3'].emoticons) {
+          emotes[value.name] = {
+            id: value.id,
+            type: 'FFZ',
+            animated: 'animated' in value,
+            width: value.width * 2,
+            height: value.height * 2
+          }
+        }
+        return emotes
+      } else {
+        console.log(`[FFZ API] Failed to fetch FFZ Global Emotes`)
+      }
+    } catch {
+      console.log(`[FFZ API] Failed to fetch FFZ Global Emotes`)
+    }
+    return {}
+  },
+
   async getFFZEmotes(channel) {
     /** Returns emotes, custom mod badge, and custom vip badge */
-    let emotes = {}
 
     /** Emotes */
     try {
-      const response = await fetch(`https://api.frankerfacez.com/v1/room/${channel}`)
+      const response = await fetch(`https://api.frankerfacez.com/v1/room/${channel}`, { signal: AbortSignal.timeout(10000) })
       if (response.ok) {
         const json = await response.json()
+
+        var emotes = {}
+
         for (const value of json.sets[json.room.set.toString()].emoticons) {
           emotes[value.name] = {
             id: value.id,
@@ -19,85 +48,57 @@ export default {
         }
 
         /** Custom Badges */
-        let modBadge = undefined
-        if (json.room.mod_urls != undefined) modBadge = `https://cdn.frankerfacez.com/room-badge/mod/${channel}/2/rounded`
-
-        let vipBadge = undefined
-        if (json.room.vip_badge != undefined) vipBadge = `https://cdn.frankerfacez.com/room-badge/vip/${channel}/2`
-        // return [emotes, mod_badge, vip_badge]
+        var modBadge = json.room.mod_urls ? `https://cdn.frankerfacez.com/room-badge/mod/${channel}/2/rounded` : undefined
+        var vipBadge = json.room.vip_badge ? `https://cdn.frankerfacez.com/room-badge/vip/${channel}/2` : undefined
         return { emotes, modBadge, vipBadge }
+      } else {
+        console.log(`[FFZ API] Failed to fetch FFZ Channel Emotes`)
       }
-      if (response.status != 404) {
-        throw 'not loaded'
-      }
-    } catch (e) {
-      console.log(e)
+    } catch {
+      console.log(`[FFZ API] Failed to fetch FFZ Channel Emotes`)
     }
     return []
   },
 
-  async getFFZGlobalEmotes() {
-    let emotes = {}
-
-    try {
-      const response = await fetch(`https://api.frankerfacez.com/v1/set/global`)
-      if (response.ok) {
-        const json = await response.json()
-        for (const value of json.sets['3'].emoticons) {
-          emotes[value.name] = {
-            id: value.id,
-            type: 'FFZ',
-            animated: 'animated' in value,
-            width: value.width * 2,
-            height: value.height * 2
-          }
-        }
-        return emotes
-      }
-      if (response.status != 404) {
-        throw 'not loaded'
-      }
-    } catch (e) {
-      console.log(e)
-    }
-    return {}
-  },
-
   async getFFZBadges() {
-    let badges = []
     try {
-      const response = await fetch(`https://api.frankerfacez.com/v1/badges/ids`)
+      const response = await fetch(`https://api.frankerfacez.com/v1/badges/ids`, { signal: AbortSignal.timeout(10000) })
       if (response.ok) {
         const json = await response.json()
+
+        var badges = []
+
         for (const b of json.badges) {
           badges.push({ id: b.id, name: b.name, url: `https://cdn.frankerfacez.com/badge/${b.id}/2/rounded`, users: json.users[b.id] })
         }
         return badges
+      } else {
+        console.log(`[FFZ API] Failed to fetch FFZ Badges`)
       }
-      if (response.status != 404) {
-        throw 'not loaded'
-      }
-    } catch (e) {
-      console.log(e)
+    } catch {
+      console.log(`[FFZ API] Failed to fetch FFZ Badges`)
     }
+    return []
   },
 
   async getFFZChannelBadges(channel) {
-    let badges = []
     try {
-      const channelResponse = await fetch(`https://api.frankerfacez.com/v1/_room/${channel}`)
+      const channelResponse = await fetch(`https://api.frankerfacez.com/v1/_room/${channel}`, { signal: AbortSignal.timeout(10000) })
       if (channelResponse.ok) {
         const channelJson = await channelResponse.json()
+
+        var badges = []
+
         if (channelJson.room.user_badges['2']) {
           badges.push({ id: '2', url: `https://cdn.frankerfacez.com/badge/2/2/rounded`, users: channelJson.room.user_badges['2'] })
         }
         return badges
+      } else {
+        console.log(`[FFZ API] Failed to fetch FFZ Channel Badges`)
       }
-      if (channelResponse.status != 404) {
-        throw 'not loaded'
-      }
-    } catch (e) {
-      console.log(e)
+    } catch {
+      console.log(`[FFZ API] Failed to fetch FFZ Channel Badges`)
     }
+    return []
   }
 }

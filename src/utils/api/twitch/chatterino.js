@@ -1,16 +1,20 @@
 export default {
   async getChatterinoBadges() {
-    let badges = []
-    const response = await fetch(`https://api.chatterino.com/badges`)
-    if (response.ok) {
-      const json = await response.json()
-      for (const b of json.badges) {
-        badges.push({ name: b.tooltip, url: b.image2, users: b.users })
+    try {
+      const response = await fetch(`https://api.chatterino.com/badges`)
+      if (response.ok) {
+        const json = await response.json()
+
+        let badges = []
+
+        for (const b of json.badges) {
+          badges.push({ name: b.tooltip, url: b.image2, users: b.users })
+        }
+        return badges
       }
-      return badges
+    } catch {
+      console.log(`[Chatterino API] Failed to fetch Chatterino Badges`)
     }
-    if (response.status != 404) {
-      throw 'not loaded'
-    }
+    return []
   }
 }

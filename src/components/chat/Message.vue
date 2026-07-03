@@ -1,7 +1,7 @@
 <script>
 import Nickname from './MessageComponents/Nickname.vue'
 import Badge from './MessageComponents/Badge.vue'
-import Common from '@/utils/common'
+import common from '@/utils/common'
 import Chat from '@/utils/api/twitch/chat'
 
 export default {
@@ -120,13 +120,13 @@ export default {
     },
     TwitchEmotes() {
       if (this.payload.tags.emotes != undefined) {
-        return Common.parse_emotes(this.payload.parameters, this.payload.tags['emotes'])
+        return common.parseEmotes(this.payload.parameters, this.payload.tags['emotes'])
       }
       return {}
     },
     Bits() {
       if (this.payload.tags.bits) {
-        return Common.parse_bits(this.payload.parameters, this.payload.tags.bits, this.api.twitch.emotePrefix)
+        return common.parseBits(this.payload.parameters, this.payload.tags.bits, this.api.twitch.emotePrefix)
       }
       return {}
     },
@@ -145,9 +145,9 @@ export default {
     SlashMe() {
       if (this.payload.action == true) {
         if (this.payload.tags.color) {
-          return this.pageConfig.readableColors == 'true' ? `${Common.brightenColor(this.payload.tags.color)}` : this.payload.tags.color
+          return this.pageConfig.readableColors == 'true' ? `${common.brightenColor(this.payload.tags.color)}` : this.payload.tags.color
         } else {
-          return this.pageConfig.readableColors == 'true' ? `${Common.brightenColor(Chat.getColorlessUsers(this.payload.tags.user_id))}` : Chat.getColorlessUsers(this.payload.tags.user_id)
+          return this.pageConfig.readableColors == 'true' ? `${common.brightenColor(Chat.getColorlessUsers(this.payload.tags.user_id))}` : Chat.getColorlessUsers(this.payload.tags.user_id)
         }
       }
       return `white`
@@ -174,7 +174,7 @@ export default {
 
     <Nickname
       :nick="payload.tags.display_name.toLowerCase().replace(`\\s`, ``).trim() === payload.source.nick || payload.source.nick == null ? payload.tags.display_name.replace(`\\s`, ``) : `${payload.source.nick}(${payload.tags.display_name.replace(`\\s`, ``)})`"
-      :color="UserColor" :pageConfig="pageConfig" :Background="Background" :Paints="api.paints"
+      :color="UserColor" :pageConfig="pageConfig" :background="Background" :paints="api.paints"
       :userid="payload.tags.user_id" :action="ActionUsername" />
 
     <span id="content" v-emotes="{

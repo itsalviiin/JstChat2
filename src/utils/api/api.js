@@ -13,6 +13,7 @@ export default class API {
     this.chatterino = chatterino
 
     this.emotes = {}
+    this.preloaded = false
 
     this.stvUserID = null
     this.stvSetID = null
@@ -44,8 +45,8 @@ export default class API {
     }
     this.emotes = Object.assign(this.emotes, ffzData.emotes)
 
-    let stvData = await this.sevenTV.get7TVUser(this.twitch.userID)
-    if (Object.keys(stvData).length != 0) {
+    let stvData = await this.sevenTV.getEmotes(this.twitch.userID)
+    if (Object.keys(stvData).length !== 0) {
       this.emotes = Object.assign(this.emotes, stvData.emotes)
       this.stvSetID = stvData.setID
       this.stvUserID = stvData.userID
@@ -56,7 +57,7 @@ export default class API {
     /** Badges */
     this.ffzbadges = await this.ffz.getFFZBadges(this.twitch.channel)
     this.ffzChannelbadges = await this.ffz.getFFZChannelBadges(this.twitch.channel)
-    this.bttvbadges = await this.bttv.getBttvBadges(this.twitch.userID)
+    this.bttvbadges = await this.bttv.getBTTVBadges(this.twitch.userID)
     this.chatterinobadges = await this.chatterino.getChatterinoBadges()
   }
 }

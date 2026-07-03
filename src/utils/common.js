@@ -25,68 +25,8 @@ const cheerTiers = {
   },
 }
 
-function componentToHex(c) {
-  var hex = c.toString(16)
-  return hex.length == 1 ? '0' + hex : hex
-}
-
-function hexToRgb(hex) {
-  var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
-  return result ? [parseInt(result[1], 16), parseInt(result[2], 16), parseInt(result[3], 16)] : null
-}
-
-var Common = {
-  textToMessageObject(text) {
-    let r = []
-    for (const key of text.split(' ')) {
-      let m = key.trim()
-      if (m == '') continue
-      r.push({ type: 'text', Text: m + ' ' })
-    }
-    return r
-  },
-
-  getEmote(emotes, name) {
-    for (const em of emotes) {
-      if (em.Name == name) {
-        return [true, em]
-      }
-    }
-    return [false, {}]
-  },
-
-  getEmoteTwitch(emotes, name) {
-    for (const em in emotes) {
-      if (em == name) {
-        return [true, emotes[em]]
-      }
-    }
-    return [false, {}]
-  },
-
-  magnitude(vector) {
-    let sum = 0
-    for (let i = 0; i < vector.length; i++) {
-      sum += vector[i] * vector[i]
-    }
-
-    return Math.sqrt(sum)
-  },
-
-  dot_product(vector1, vector2) {
-    if (vector1.length !== vector2.length) {
-      throw new Error('Vectors must have the same length')
-    }
-
-    let sum = 0
-    for (let i = 0; i < vector1.length; i++) {
-      sum += vector1[i] * vector2[i]
-    }
-
-    return sum
-  },
-
-  DecimalToStringRGBA(num) {
+var common = {
+  decimalToStringRGBA(num) {
     const r = (num >>> 24) & 0xff
     const g = (num >>> 16) & 0xff
     const b = (num >>> 8) & 0xff
@@ -95,103 +35,9 @@ var Common = {
     return `rgba(${r}, ${g}, ${b}, ${(a / 255).toFixed(3)})`
   },
 
-  toGray(color) {
-    let rgb = hexToRgb(color)
-    return (rgb[0] / 255) * 0.2126 + (rgb[1] / 255) * 0.7152 + 0.0722 * (rgb[2] / 255)
-  },
-
-  pSBC(p, c0, c1, l) {
-    let r,
-      g,
-      b,
-      P,
-      f,
-      t,
-      h,
-      i = parseInt,
-      m = Math.round,
-      a = typeof c1 == 'string'
-    if (
-      typeof p != 'number' ||
-      p < -1 ||
-      p > 1 ||
-      typeof c0 != 'string' ||
-      (c0[0] != 'r' && c0[0] != '#') ||
-      (c1 && !a)
-    )
-      return null
-    if (!this.pSBCr)
-      this.pSBCr = (d) => {
-        let n = d.length,
-          x = {}
-        if (n > 9) {
-          ; ([r, g, b, a] = d = d.split(',')), (n = d.length)
-          if (n < 3 || n > 4) return null
-            ; (x.r = i(r[3] == 'a' ? r.slice(5) : r.slice(4))),
-              (x.g = i(g)),
-              (x.b = i(b)),
-              (x.a = a ? parseFloat(a) : -1)
-        } else {
-          if (n == 8 || n == 6 || n < 4) return null
-          if (n < 6) d = '#' + d[1] + d[1] + d[2] + d[2] + d[3] + d[3] + (n > 4 ? d[4] + d[4] : '')
-          d = i(d.slice(1), 16)
-          if (n == 9 || n == 5)
-            (x.r = (d >> 24) & 255),
-              (x.g = (d >> 16) & 255),
-              (x.b = (d >> 8) & 255),
-              (x.a = m((d & 255) / 0.255) / 1000)
-          else (x.r = d >> 16), (x.g = (d >> 8) & 255), (x.b = d & 255), (x.a = -1)
-        }
-        return x
-      }
-        ; (h = c0.length > 9),
-          (h = a ? (c1.length > 9 ? true : c1 == 'c' ? !h : false) : h),
-          (f = this.pSBCr(c0)),
-          (P = p < 0),
-          (t =
-            c1 && c1 != 'c'
-              ? this.pSBCr(c1)
-              : P
-                ? { r: 0, g: 0, b: 0, a: -1 }
-                : { r: 255, g: 255, b: 255, a: -1 }),
-          (p = P ? p * -1 : p),
-          (P = 1 - p)
-    if (!f || !t) return null
-    if (l) (r = m(P * f.r + p * t.r)), (g = m(P * f.g + p * t.g)), (b = m(P * f.b + p * t.b))
-    else
-      (r = m((P * f.r ** 2 + p * t.r ** 2) ** 0.5)),
-        (g = m((P * f.g ** 2 + p * t.g ** 2) ** 0.5)),
-        (b = m((P * f.b ** 2 + p * t.b ** 2) ** 0.5))
-        ; (a = f.a),
-          (t = t.a),
-          (f = a >= 0 || t >= 0),
-          (a = f ? (a < 0 ? t : t < 0 ? a : a * P + t * p) : 0)
-    if (h)
-      return (
-        'rgb' + (f ? 'a(' : '(') + r + ',' + g + ',' + b + (f ? ',' + m(a * 1000) / 1000 : '') + ')'
-      )
-    else
-      return (
-        '#' +
-        (4294967296 + r * 16777216 + g * 65536 + b * 256 + (f ? m(a * 255) : 0))
-          .toString(16)
-          .slice(1, f ? undefined : -2)
-      )
-  },
-
-  hexToRgb(hex) {
+  HEX2RGB(hex) {
     var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
-    return result
-      ? [
-        parseInt(result[1], 16) / 255,
-        parseInt(result[2], 16) / 255,
-        parseInt(result[3], 16) / 255,
-      ]
-      : null
-  },
-
-  rgbToHex(r, g, b) {
-    return '#' + componentToHex(r) + componentToHex(g) + componentToHex(b)
+    return result ? [parseInt(result[1], 16), parseInt(result[2], 16), parseInt(result[3], 16)] : null
   },
 
   brightenColor(hexColor, threshold = 0.20, brightenStep = 5) {
@@ -203,7 +49,7 @@ var Common = {
   },
 
   getLuminance(hex) {
-    return Math.floor(this.luminance(...hexToRgb(hex)) * 100) / 100
+    return Math.floor(this.luminance(...this.HEX2RGB(hex)) * 100) / 100
   },
 
   luminance(r, g, b) {
@@ -226,7 +72,7 @@ var Common = {
     amount = Math.max(-100, Math.min(100, amount));
 
     // Function to convert hex to HSL
-    function hexToHSL(hex) {
+    function HEX2HSL(hex) {
       // Remove '#' if present and parse hex value
       hex = hex.replace(/^#/, '');
       let r = parseInt(hex.substring(0, 2), 16) / 255;
@@ -253,7 +99,7 @@ var Common = {
     }
 
     // Function to convert HSL to hex
-    function HSLToHex(h, s, l) {
+    function HSL2HEX(h, s, l) {
       h /= 360;
       s /= 100;
       l /= 100;
@@ -261,7 +107,7 @@ var Common = {
       if (s === 0) {
         r = g = b = l; // achromatic
       } else {
-        const hue2rgb = (p, q, t) => {
+        const HUE2RGB = (p, q, t) => {
           if (t < 0) t += 1;
           if (t > 1) t -= 1;
           if (t < 1 / 6) return p + (q - p) * 6 * t;
@@ -271,9 +117,9 @@ var Common = {
         };
         const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
         const p = 2 * l - q;
-        r = hue2rgb(p, q, h + 1 / 3);
-        g = hue2rgb(p, q, h);
-        b = hue2rgb(p, q, h - 1 / 3);
+        r = HUE2RGB(p, q, h + 1 / 3);
+        g = HUE2RGB(p, q, h);
+        b = HUE2RGB(p, q, h - 1 / 3);
       }
       const toHex = x => {
         const hex = Math.round(x * 255).toString(16);
@@ -282,16 +128,16 @@ var Common = {
       return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
     }
 
-    const hsl = hexToHSL(color);
+    const hsl = HEX2HSL(color);
     hsl.l = Math.max(0, Math.min(100, hsl.l + amount)); // Adjust lightness
-    return HSLToHex(hsl.h, hsl.s, hsl.l);
+    return HSL2HEX(hsl.h, hsl.s, hsl.l);
   },
 
   checkEmoji(word) {
     return /\p{Extended_Pictographic}/u.test(word) || /[\uD83C][\uDDE6-\uDDFF][\uD83C][\uDDE6-\uDDFF]/.test(word)
   },
 
-  parse_emotes(message, emotes) {
+  parseEmotes(message, emotes) {
     let result = {}
     /** Match emojis */
     message = message.replace(
@@ -319,7 +165,8 @@ var Common = {
     }
     return result
   },
-  parse_bits(message, bits, prefix) {
+
+  parseBits(message, bits, prefix) {
     let result = {}
 
     let words = message.split(" ")
@@ -382,4 +229,4 @@ var Common = {
   },
 }
 
-export default Common
+export default common

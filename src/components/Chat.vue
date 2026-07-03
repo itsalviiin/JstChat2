@@ -103,35 +103,50 @@ export default {
   },
   methods: {
     async onEmoteAdd(e) {
+      var width, height
+      for (const image of e.value.data.host.files) {
+        if (image.name === "2x.webp") {
+          width = image.width
+          height = image.height
+          break
+        }
+      }
+
       this.api.emotes[e.value.name] = {
         id: e.value.id,
         type: '7TV',
-        ZeroWidth: e.value.flags == 1,
+        zeroWidth: e.value.flags === 1,
         unlisted: !e.value.data.listed,
-        private: e.value.data.flags == 1,
-        width: e.value.data.host.files[1].width,
-        height: e.value.data.host.files[1].height,
+        private: e.value.data.flags === 1,
+        width: width,
+        height: height,
       }
-      if (this.pageConfig.stvSysMsg == 'true') {
+      console.log(`[7TV Event API] Added ${e.value.name}`)
+      if (this.pageConfig.stvSysMsg === 'true') {
         this.createSystemMessage(`[7TV] Added ${e.value.name}`)
       }
     },
+
     async onEmoteDelete(e) {
       delete this.api.emotes[e.old_value.name]
-      if (this.pageConfig.stvSysMsg == 'true') {
+      console.log(`[7TV Event API] Removed ${e.old_value.name}`)
+      if (this.pageConfig.stvSysMsg === 'true') {
         this.createSystemMessage(`[7TV] Removed ${e.old_value.name}`)
       }
     },
+
     async onEmoteRename(e) {
       this.api.emotes[e.value.name] = this.api.emotes[e.old_value.name]
       delete this.api.emotes[e.old_value.name]
-      if (this.pageConfig.stvSysMsg == 'true') {
+      console.log(`[7TV Event API] Renamed ${e.old_value.name} to ${e.value.name}`)
+      if (this.pageConfig.stvSysMsg === 'true') {
         this.createSystemMessage(`[7TV] Renamed ${e.old_value.name} to ${e.value.name}`)
       }
     },
+
     async onBadgeCreate(e) {
       for (const i in this.api.stvbadges) {
-        if (this.api.stvbadges[i].id == e.data.id) {
+        if (this.api.stvbadges[i].id === e.data.id) {
           this.api.stvbadges[i].users.push(e.user.id)
           return
         }
@@ -139,9 +154,10 @@ export default {
       let pos = this.api.stvbadges.push({ url: `https:${e.data.host.url}/2x`, id: e.data.id }) - 1
       this.api.stvbadges[pos].users = [e.user.id]
     },
+
     async onBadgeDelete(e) {
       for (const i in this.api.stvbadges) {
-        if (this.api.stvbadges[i].id == e.data.id) {
+        if (this.api.stvbadges[i].id === e.data.id) {
           this.api.stvbadges[i].users = this.api.stvbadges[i].users.filter(function (item) {
             return item !== e.user.id
           })
@@ -149,9 +165,10 @@ export default {
         }
       }
     },
+
     async onPaintCreate(e) {
       for (const i in this.api.paints) {
-        if (this.api.paints[i].id == e.data.id) {
+        if (this.api.paints[i].id === e.data.id) {
           this.api.paints[i].users.push(e.user.id)
           return
         }
@@ -159,31 +176,33 @@ export default {
       let pos = this.api.paints.push(e.data) - 1
       this.api.paints[pos].users = [e.user.id]
     },
+
     async onPaintDelete(e) {
       for (const i in this.api.paints) {
-        if (this.api.paints[i].id == e.data.id) {
+        if (this.api.paints[i].id === e.data.id) {
           this.api.paints[i].users = this.api.paints[i].users.filter(function (item) {
-            return item != e.user.id
+            return item !== e.user.id
           })
           break
         }
       }
     },
+
     async onEmoteSetChange() {
       await this.api.fetchEmotes()
     },
-    async onPersonalEmotes(e, user) {
-      if (e != undefined && user != undefined) {
-        this.api.personalEmotes[user] = e
+
+    async onPersonalEmotes(userPersonalEmotes, userID) {
+      if (userPersonalEmotes && userID) {
+        this.api.personalEmotes[userID] = userPersonalEmotes
       }
     },
+
     async onFadeAfter(id) {
-      if (this.pageConfig.fade != 0) {
+      if (this.pageConfig.fade !== 0) {
         setTimeout(
           () => {
-            const message = this.messages.find(
-              (item) => item.tags.id == id,
-            )
+            const message = this.messages.find((item) => item.tags.id === id)
             if (message) {
               /** Add fadeOut flag to the message */
               message.fadeOut = true
@@ -193,24 +212,23 @@ export default {
         )
       }
     },
+
     createTwitchMessage(message) {
-      if (this.pageConfig.hideBots == 'true') {
+      if (this.pageConfig.hideBots === 'true') {
         if (this.botsList.includes(message.tags.user_id)) {
           return
         }
       }
 
       /** Remove when messages start with a command */
-      if (this.pageConfig.hideCommands.toLowerCase() == 'true') {
-        if (
-          message.parameters.startsWith('!')
-        ) {
+      if (this.pageConfig.hideCommands.toLowerCase() === 'true') {
+        if (message.parameters.startsWith('!')) {
           return
         }
       }
 
       /** Remove users in the ignore list */
-      if (this.pageConfig.hideUsers.length != 0) {
+      if (this.pageConfig.hideUsers.length !== 0) {
         if (this.pageConfig.hideUsers.includes(message.source.nick)) {
           return
         }
@@ -223,13 +241,13 @@ export default {
         }
       }
 
-      if (this.pageConfig.hideSubMessages == 'true') {
-        if (message.command.command == 'USERNOTICE') {
+      if (this.pageConfig.hideSubMessages === 'true') {
+        if (message.command.command === 'USERNOTICE') {
           return
         }
       }
 
-      if (this.pageConfig.hideBitMessages == 'true') {
+      if (this.pageConfig.hideBitMessages === 'true') {
         if (message.tags.bits) {
           return
         }
@@ -247,13 +265,14 @@ export default {
 
       message.background = `#${this.pageConfig.background}`
 
-      if (this.pageConfig.displayInterval != 0) {
+      if (this.pageConfig.displayInterval !== 0) {
         this.temp.push(message)
       } else {
         this.messages.push(message)
       }
       this.onFadeAfter(message.tags.id)
     },
+
     async createSystemMessage(message) {
       if (this.messages.length >= this.pageConfig.maxMes) {
         this.messages.shift()
@@ -268,7 +287,7 @@ export default {
 
       sysMsg.background = `#${this.pageConfig.background}`
 
-      if (this.pageConfig.displayInterval != 0) {
+      if (this.pageConfig.displayInterval !== 0) {
         this.temp.push(sysMsg)
       } else {
         this.messages.push(sysMsg)
@@ -276,8 +295,9 @@ export default {
       this.onFadeAfter(sysMsg.tags.id)
       this.systemMsgID++
     },
+
     createTwitchUsernoticeMessage(message) {
-      if (this.pageConfig.twitchSysMsg == 'true') {
+      if (this.pageConfig.twitchSysMsg === 'true') {
         if (this.messages.length >= this.pageConfig.maxMes) {
           this.messages.shift()
         }
@@ -291,7 +311,7 @@ export default {
 
         sysMsg.background = `#${this.pageConfig.background}`
 
-        if (this.pageConfig.displayInterval != 0) {
+        if (this.pageConfig.displayInterval !== 0) {
           this.temp.push(sysMsg)
         } else {
           this.messages.push(sysMsg)
@@ -301,10 +321,11 @@ export default {
       }
     },
   },
+
   created: async function () {
     let start = Date.now()
 
-    if (this.pageConfig.filter != '') {
+    if (this.pageConfig.filter !== '') {
       this.filterRegex = new RegExp(this.pageConfig.filter, "i")
     }
 
@@ -315,7 +336,7 @@ export default {
     await this.api.fetchCosmetics()
 
     setInterval(() => {
-      if (this.pageConfig.auto_reload == 'true') {
+      if (this.pageConfig.auto_reload === 'true') {
         this.api.fetchEmotes()
         console.log('[EMOTES] Auto-reloaded emotes')
       }
@@ -325,7 +346,7 @@ export default {
     this.client = new TwitchClient(this.pageConfig.channel)
     this.client.connect()
     console.log(`[TWITCH CLIENT] Connected to #${this.pageConfig.channel} in ${(Date.now() - start) / 1000}s`)
-    if (this.pageConfig.overlaySysMsg == 'true') {
+    if (this.pageConfig.overlaySysMsg === 'true') {
       this.createSystemMessage(`Connected to #${this.pageConfig.channel}!`)
     }
 
@@ -333,15 +354,15 @@ export default {
     this.client.OnSystemMessage = this.createTwitchUsernoticeMessage
     this.client.OnFadeAfter = this.onFadeAfter
     this.client.OnUserID = (id) => {
-      if (this.userID == null) {
+      if (this.userID === null) {
         this.userID = id
       }
     }
     this.client.OnClearChat = async (payload) => {
-      if (payload.parameters == null) {
+      if (payload.parameters === null) {
         this.messages = []
       } else {
-        if (this.pageConfig.displayInterval != 0) {
+        if (this.pageConfig.displayInterval !== 0) {
           this.temp = this.temp.filter((item) => item.source.nick !== payload.parameters)
         }
         this.messages = this.messages.filter((item) => item.source.nick !== payload.parameters)
@@ -359,7 +380,7 @@ export default {
         case "refreshemotes":
         case "reloademotes":
           this.api.fetchEmotes()
-          if (this.pageConfig.stvSysMsg == 'true') {
+          if (this.pageConfig.stvSysMsg === 'true') {
             this.createSystemMessage('Emotes have been reloaded.')
           }
           break
@@ -404,14 +425,15 @@ export default {
     this.EventAPI.onEmoteSetChange = this.onEmoteSetChange
     this.EventAPI.onPersonalEmotes = this.onPersonalEmotes
 
-    this.EventAPI.Connect()
+    this.EventAPI.connect()
   },
+
   computed: {
     fontSize() {
       return `${this.pageConfig.fontSizeI}px`
     },
     isTransparent() {
-      return this.pageConfig.background == 'transparent'
+      return this.pageConfig.background === 'transparent'
     },
     fontName() {
       return this.pageConfig.fontName
@@ -420,20 +442,21 @@ export default {
       return this.pageConfig.fontWeight
     },
     animation() {
-      if (this.pageConfig.animate == 'true') {
+      if (this.pageConfig.animate === 'true') {
         return `fadeInUp 0.3s ease forwards`
       }
       return `0s`
     },
     shadow() {
-      if (this.pageConfig.shadow == 'true') {
+      if (this.pageConfig.shadow === 'true') {
         return `drop-shadow(3px 3px 0.1rem black)`
       }
       return `none`
     }
   },
+
   mounted() {
-    if (this.pageConfig.displayInterval != 0) {
+    if (this.pageConfig.displayInterval !== 0) {
       this.displayInterval = setInterval(() => {
         if (this.temp.length > 0) {
           this.messages.push(...this.temp);
@@ -443,10 +466,12 @@ export default {
       }, this.pageConfig.displayInterval);
     }
   },
+
   beforeUnmount() {
     clearInterval(this.displayInterval);
   }
 }
+
 </script>
 
 <template>

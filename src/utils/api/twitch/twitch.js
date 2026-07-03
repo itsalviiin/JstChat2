@@ -15,7 +15,7 @@ export default class TwitchAPI {
     this.profileImg = userInfo.profile
   }
 
-  async getBadges(user_id, channel) {
+  async getBadges(userID, channel) {
     var badges = {}
 
     try {
@@ -65,7 +65,7 @@ export default class TwitchAPI {
     } catch {
       console.log(`Unable to fetch channel badges, trying alterative api`)
       try {
-        const channelRequest = await fetch(`https://api.ivr.fi/v2/twitch/badges/channel?id=${user_id}`, { signal: AbortSignal.timeout(5000) })
+        const channelRequest = await fetch(`https://api.ivr.fi/v2/twitch/badges/channel?id=${userID}`, { signal: AbortSignal.timeout(5000) })
         if (channelRequest.ok) {
           const json = await channelRequest.json()
           for (const value of json) {

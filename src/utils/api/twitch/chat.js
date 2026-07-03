@@ -38,12 +38,12 @@ class Chat {
     }
   }
 
-  getColorlessUsers(user_id) {
-    if (this.colorlessUsers[user_id]) {
-      return this.colorlessUsers[user_id]
+  getColorlessUsers(userID) {
+    if (this.colorlessUsers[userID]) {
+      return this.colorlessUsers[userID]
     }
     let randomColor = defaultColors[Math.floor(Math.random() * defaultColors.length)]
-    this.colorlessUsers[user_id] = randomColor
+    this.colorlessUsers[userID] = randomColor
     return randomColor
   }
 }

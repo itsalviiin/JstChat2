@@ -1,5 +1,5 @@
 <script>
-import Common from '@/utils/common'
+import common from '@/utils/common'
 
 export default {
   name: 'NicknameComponent',
@@ -7,23 +7,23 @@ export default {
     nick: String,
     color: String,
     pageConfig: Object,
-    Background: String,
-    Paints: Object,
+    background: String,
+    paints: Object,
     userid: String,
     action: String,
   },
   computed: {
     Color() {
-      return Common.brightenColor(this.color)
+      return common.brightenColor(this.color)
     },
     HavePaints() {
-      if (this.Paint != undefined && this.pageConfig.hide7TVPaints == 'false') {
+      if (this.Paint && this.pageConfig.hide7TVPaints == 'false') {
         return true
       }
       return false
     },
     Paint() {
-      for (const value of this.Paints) {
+      for (const value of this.paints) {
         if (this.pageConfig.hide7TVPaints == 'false') {
           if (value.users.includes(this.userid)) {
             return value
@@ -58,7 +58,7 @@ export default {
         funcPrefix = this.Paint.repeat ? 'repeating-' : ''
       }
       for (const stop of this.Paint.stops) {
-        const color = Common.DecimalToStringRGBA(stop.color)
+        const color = common.decimalToStringRGBA(stop.color)
         args.push(`${color} ${stop.at * 100}%`)
       }
       return `${funcPrefix}${cssFunc}(${args.join(', ')})`
@@ -68,7 +68,7 @@ export default {
         return this.Paint.shadows
           .map(
             (v) =>
-              `drop-shadow(${v.x_offset * 2}px ${v.y_offset * 2}px ${v.radius}px ${Common.DecimalToStringRGBA(v.color)})`,
+              `drop-shadow(${v.x_offset * 2}px ${v.y_offset * 2}px ${v.radius}px ${common.decimalToStringRGBA(v.color)})`,
           )
           .join(' ')
       } catch {

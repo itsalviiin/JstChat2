@@ -19,13 +19,13 @@ const router = createRouter({
 
 app.directive('emotes', {
   mounted(el, binding) {
-    el.innerHTML = emotes.ParseEmotes(el.innerHTML, binding.value)
+    el.innerHTML = emotes.parseEmotes(el.innerHTML, binding.value)
   },
 })
 
 app.directive('bits', {
   mounted(el, binding) {
-    el.innerHTML = emotes.ParseBits(el.innerHTML, binding.value)
+    el.innerHTML = emotes.parseBits(el.innerHTML, binding.value)
   },
 })
 
